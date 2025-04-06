@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import Onboarding from "@/components/Onboarding";
 import SearchSuggestions from "@/components/SearchSuggestions";
 import { getChallengeById } from "@/utils/challengeStorage";
 import { useToast } from "@/hooks/use-toast";
+import AudioUploader from "@/components/AudioUploader";
 
 const Index = () => {
   const [isAddingDream, setIsAddingDream] = useState(false);
@@ -20,6 +20,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const [showAudioUploader, setShowAudioUploader] = useState(false);
   
   // Get challenge ID from URL if it exists
   const challengeId = searchParams.get('challengeId');
@@ -74,6 +75,13 @@ const Index = () => {
     setSearchQuery(query);
   };
 
+  const handleAudioUploaded = (audioUrl: string) => {
+    toast({
+      title: "Audio Ready",
+      description: "Your audio is now available for meditation sessions",
+    });
+  };
+
   const renderContent = () => {
     if (loading) {
       return <div className="flex justify-center py-12 text-white dream-text">Loading dreams...</div>;
@@ -87,22 +95,34 @@ const Index = () => {
              />;
     }
 
-    if (dreams.length === 0) {
-      return <EmptyState onAddDream={handleAddDream} />;
-    }
-
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-white dream-text">Your Dream Journal</h2>
-          <Button 
-            onClick={handleAddDream}
-            className="bg-dream-gradient hover:opacity-90 transition-opacity"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Dream
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAudioUploader(!showAudioUploader)}
+              className="bg-dream-gradient hover:opacity-90 transition-opacity text-white"
+            >
+              Upload Audio
+            </Button>
+            <Button 
+              onClick={handleAddDream}
+              className="bg-dream-gradient hover:opacity-90 transition-opacity"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Dream
+            </Button>
+          </div>
         </div>
+        
+        {showAudioUploader && (
+          <div className="bg-white/50 backdrop-blur-sm p-4 rounded-lg border border-dream-light-purple/30">
+            <h3 className="text-lg font-medium mb-3">Custom Audio Uploader</h3>
+            <AudioUploader onAudioUploaded={handleAudioUploaded} />
+          </div>
+        )}
         
         <div className="mb-4">
           <SearchSuggestions dreams={dreams} onSelect={handleSearchSelect} />

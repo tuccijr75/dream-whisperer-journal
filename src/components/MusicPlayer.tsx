@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -18,18 +18,73 @@ const AUDIO_SOURCES = [
   'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
 ];
 
+// Storage key for user uploaded audio
+const USER_AUDIO_KEY = 'dream-whisperer-user-audio';
+
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [audioError, setAudioError] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const audioInitializedRef = useRef(false);
   const audioLoadAttemptedRef = useRef(false);
   const currentSourceIndexRef = useRef(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   
+  // Function to handle custom audio upload
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's an audio file
+    if (!file.type.startsWith('audio/')) {
+      toast.error("Please upload an audio file (MP3, WAV, etc.)");
+      return;
+    }
+
+    // Create a local URL for the file
+    const objectUrl = URL.createObjectURL(file);
+    
+    // Save to localStorage so it persists between sessions
+    try {
+      localStorage.setItem(USER_AUDIO_KEY, objectUrl);
+      
+      // Reset audio player and use new source
+      audioInitializedRef.current = false;
+      AudioManager.disposeAudio(AUDIO_ID);
+      
+      currentSourceIndexRef.current = -1; // Custom audio
+      initializeAudio(objectUrl);
+      
+      toast.success("Custom audio loaded successfully");
+      
+      if (isPlaying) {
+        AudioManager.playAudio(AUDIO_ID);
+      }
+    } catch (err) {
+      console.error("Failed to save custom audio:", err);
+      toast.error("Failed to save custom audio");
+    }
+  };
+  
   const tryNextAudioSource = () => {
-    // Try the next audio source in our list
+    // Check if we have a custom audio first
+    const customAudio = localStorage.getItem(USER_AUDIO_KEY);
+    
+    if (customAudio && currentSourceIndexRef.current !== -1) {
+      // Try the custom audio first
+      currentSourceIndexRef.current = -1;
+      audioInitializedRef.current = false;
+      audioLoadAttemptedRef.current = false;
+      AudioManager.disposeAudio(AUDIO_ID);
+      initializeAudio(customAudio);
+      toast.info("Trying your custom audio");
+      return;
+    }
+    
+    // If no custom audio or it failed, try the next built-in source
     currentSourceIndexRef.current = (currentSourceIndexRef.current + 1) % AUDIO_SOURCES.length;
     const nextSource = AUDIO_SOURCES[currentSourceIndexRef.current];
     
@@ -99,8 +154,16 @@ const MusicPlayer = () => {
   };
 
   useEffect(() => {
-    // Initialize audio with first source on component mount
-    initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
+    // Check if there's a custom audio source first
+    const customAudio = localStorage.getItem(USER_AUDIO_KEY);
+    
+    if (customAudio) {
+      initializeAudio(customAudio);
+      currentSourceIndexRef.current = -1; // Mark as using custom audio
+    } else {
+      // Initialize audio with first source on component mount
+      initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
+    }
     
     // Cleanup on unmount
     return () => {
@@ -146,6 +209,10 @@ const MusicPlayer = () => {
     setIsPlaying(!isPlaying);
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -161,6 +228,7 @@ const MusicPlayer = () => {
           <VolumeX className="h-5 w-5 text-dream-purple/70" />
         )}
       </Button>
+      
       {(isPlaying || isAudioInitialized) && (
         <div className={`${isMobile ? 'w-16' : 'w-24'}`}>
           <Slider
@@ -172,6 +240,24 @@ const MusicPlayer = () => {
           />
         </div>
       )}
+      
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleUploadClick}
+        className="hover:bg-dream-light-purple/20"
+        aria-label="Upload custom audio"
+      >
+        <Upload className="h-4 w-4 text-dream-purple" />
+      </Button>
+      
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </div>
   );
 };
