@@ -4,6 +4,7 @@ import { Brain, VolumeX, Volume2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 import binauralBeatGenerator, { BrainwaveFrequency } from "@/utils/binauralBeats";
 
 interface BrainwaveVisualizerProps {
@@ -21,6 +22,7 @@ const BrainwaveVisualizer = ({
   const animationRef = useRef<number | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [binauralVolume, setBinauralVolume] = useState(20);
+  const hasInteractedRef = useRef(false);
   
   const getFrequencySettings = (freq: BrainwaveFrequency) => {
     switch(freq) {
@@ -41,11 +43,23 @@ const BrainwaveVisualizer = ({
   
   // Handle binaural beats audio
   useEffect(() => {
-    if (active && soundEnabled) {
-      binauralBeatGenerator.start(frequency, binauralVolume / 100);
-    } else {
-      binauralBeatGenerator.stop();
-    }
+    if (!hasInteractedRef.current) return;
+    
+    const updateBinauralState = async () => {
+      if (active && soundEnabled) {
+        const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
+        if (!success) {
+          toast.error("Could not start binaural beats", {
+            description: "Please try again after interacting with the page",
+            duration: 3000
+          });
+        }
+      } else {
+        binauralBeatGenerator.stop();
+      }
+    };
+    
+    updateBinauralState();
     
     return () => {
       binauralBeatGenerator.stop();
@@ -54,8 +68,10 @@ const BrainwaveVisualizer = ({
   
   // Update binaural volume when it changes
   useEffect(() => {
-    binauralBeatGenerator.setVolume(binauralVolume / 100);
-  }, [binauralVolume]);
+    if (soundEnabled && binauralBeatGenerator.isActive()) {
+      binauralBeatGenerator.setVolume(binauralVolume / 100);
+    }
+  }, [binauralVolume, soundEnabled]);
   
   // Canvas animation for wave visualization
   useEffect(() => {
@@ -149,8 +165,31 @@ const BrainwaveVisualizer = ({
     };
   }, [active, frequency, volume]);
 
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
+  const toggleSound = async () => {
+    hasInteractedRef.current = true;
+    
+    if (soundEnabled) {
+      // Simply turn off the sound
+      setSoundEnabled(false);
+      binauralBeatGenerator.stop();
+    } else {
+      // Try to enable sound
+      setSoundEnabled(true);
+      const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
+      
+      if (!success) {
+        toast.error("Could not start binaural beats", {
+          description: "Your browser may not support Web Audio API",
+          duration: 3000
+        });
+        setSoundEnabled(false);
+      } else {
+        toast.success("Binaural beats enabled", {
+          description: "Use headphones for best results",
+          duration: 3000
+        });
+      }
+    }
   };
 
   const handleVolumeChange = (values: number[]) => {
