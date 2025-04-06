@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import AudioManager from "@/utils/audioManager";
 
 const AUDIO_ID = 'ambient-music-player';
-const AUDIO_SRC = '/ambient-meditation.mp3';
+const AUDIO_SRC = '/nature-sounds.mp3'; // Updated to use existing audio file
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -33,8 +33,8 @@ const MusicPlayer = () => {
           console.error("Error loading ambient meditation audio");
           setAudioError(true);
           if (!audioLoadAttemptedRef.current) {
-            toast.error("Could not load meditation audio", {
-              description: "Please check that the audio file exists in the public folder"
+            toast.error("Could not load ambient audio", {
+              description: "There might be an issue with the audio file"
             });
             audioLoadAttemptedRef.current = true;
           }

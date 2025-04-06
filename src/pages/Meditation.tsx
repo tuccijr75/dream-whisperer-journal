@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -54,7 +55,7 @@ const guidedMeditations = [
     title: "Lucid Dream Induction",
     description: "Train your mind to recognize when you're dreaming",
     duration: "15 minutes",
-    audioSrc: "/ambient-meditation.mp3",
+    audioSrc: "/nature-sounds.mp3", // Updated to use existing audio file
     technique: "MILD (Mnemonic Induction of Lucid Dreams)",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -63,7 +64,7 @@ const guidedMeditations = [
     title: "Dream Recall Enhancement",
     description: "Improve your ability to remember dreams",
     duration: "12 minutes",
-    audioSrc: "/ambient-meditation.mp3", 
+    audioSrc: "/gentle-wake.mp3", // Updated to use existing audio file
     technique: "Memory Association",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -72,7 +73,7 @@ const guidedMeditations = [
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
     duration: "20 minutes",
-    audioSrc: "/ambient-meditation.mp3",
+    audioSrc: "/crystal-bells.mp3", // Updated to use existing audio file
     technique: "WBTB",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -81,7 +82,7 @@ const guidedMeditations = [
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
     duration: "10 minutes",
-    audioSrc: "/ambient-meditation.mp3",
+    audioSrc: "/nature-sounds.mp3", // Updated to use existing audio file
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg"
   }
