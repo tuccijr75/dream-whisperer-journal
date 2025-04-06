@@ -83,8 +83,12 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position: relative;
-  overflow: hidden;
+  position: fixed; /* Change to fixed to cover the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Place it behind content */
 }
 
 /* Adjust background overlay to work better with the new image */
@@ -94,9 +98,8 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 100%;
+  bottom: 0;
   background: radial-gradient(circle at 10% 20%, rgba(18, 25, 51, 0.2) 0%, rgba(18, 25, 51, 0.1) 80%);
-  z-index: -1;
 }
 
 /* Floating animation for dream-like elements */
