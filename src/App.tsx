@@ -8,9 +8,11 @@ import Index from "./pages/Index";
 import CalendarView from "./pages/Calendar";
 import Statistics from "./pages/Statistics";
 import Meditation from "./pages/Meditation";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import { useState } from "react";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import "./App.css";
 
 const App = () => {
@@ -19,20 +21,23 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout><Index /></Layout>} />
-            <Route path="/calendar" element={<Layout><CalendarView /></Layout>} />
-            <Route path="/statistics" element={<Layout><Statistics /></Layout>} />
-            <Route path="/meditation" element={<Layout><Meditation /></Layout>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout><Index /></Layout>} />
+              <Route path="/calendar" element={<Layout><CalendarView /></Layout>} />
+              <Route path="/statistics" element={<Layout><Statistics /></Layout>} />
+              <Route path="/meditation" element={<Layout><Meditation /></Layout>} />
+              <Route path="/settings" element={<Layout><Settings /></Layout>} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

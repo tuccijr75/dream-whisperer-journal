@@ -1,89 +1,93 @@
 
-import { Link, useLocation } from "react-router-dom";
-import { CalendarDays, BarChart3, Moon } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Menu } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Calendar, BarChart2, Home, Menu, X, Moon, Video, Settings } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Navigation = () => {
-  const location = useLocation();
-  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
+  const { theme } = useTheme();
+  
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
-  const isActive = (path: string) => location.pathname === path;
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
 
-  const navigationItems = [
-    {
-      path: "/",
-      label: "Journal",
-      icon: <Moon className="h-4 w-4" />,
-    },
-    {
-      path: "/calendar",
-      label: "Calendar",
-      icon: <CalendarDays className="h-4 w-4" />,
-    },
-    {
-      path: "/statistics",
-      label: "Insights",
-      icon: <BarChart3 className="h-4 w-4" />,
-    },
-    {
-      path: "/meditation",
-      label: "Sleep",
-      icon: <Moon className="h-4 w-4" />,
-    },
-  ];
-
-  if (isMobile) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="text-[#f0e6cf]">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {navigationItems.map((item) => (
-            <DropdownMenuItem key={item.path} asChild>
-              <Link
-                to={item.path}
-                className={`flex items-center gap-2 w-full ${
-                  isActive(item.path) ? "bg-dream-light-purple/20" : ""
-                }`}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+  const getLinkClass = ({ isActive }: { isActive: boolean }) =>
+    cn(
+      "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors",
+      isActive
+        ? "bg-dream-purple/20 text-white font-medium"
+        : "text-[#f0e6cf] hover:bg-white/5"
     );
-  }
 
   return (
-    <nav className="flex items-center gap-2">
-      {navigationItems.map((item) => (
-        <Link key={item.path} to={item.path}>
-          <Button
-            variant="ghost"
-            className={`text-[#f0e6cf] hover:bg-dream-light-purple/20 ${
-              isActive(item.path) ? "bg-dream-light-purple/20" : ""
-            }`}
-            size="sm"
-          >
-            {item.icon}
-            {item.label}
-          </Button>
-        </Link>
-      ))}
-    </nav>
+    <div className="relative z-20">
+      {/* Mobile menu button */}
+      <button
+        onClick={toggleMenu}
+        className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+        aria-label="Toggle menu"
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Desktop navigation */}
+      <nav className="hidden md:flex items-center space-x-1">
+        <NavLink to="/" className={getLinkClass}>
+          <Home size={18} />
+          <span>Home</span>
+        </NavLink>
+        <NavLink to="/calendar" className={getLinkClass}>
+          <Calendar size={18} />
+          <span>Calendar</span>
+        </NavLink>
+        <NavLink to="/statistics" className={getLinkClass}>
+          <BarChart2 size={18} />
+          <span>Stats</span>
+        </NavLink>
+        <NavLink to="/meditation" className={getLinkClass}>
+          <Video size={18} />
+          <span>Meditation</span>
+        </NavLink>
+        <NavLink to="/settings" className={getLinkClass}>
+          <Settings size={18} />
+          <span>Settings</span>
+        </NavLink>
+      </nav>
+
+      {/* Mobile menu */}
+      {isOpen && (
+        <div className="md:hidden absolute right-0 top-12 w-60 bg-black/80 backdrop-blur-lg border border-white/10 rounded-lg shadow-xl overflow-hidden">
+          <div className="p-2 flex flex-col">
+            <NavLink to="/" className={getLinkClass} onClick={closeMenu}>
+              <Home size={18} />
+              <span>Home</span>
+            </NavLink>
+            <NavLink to="/calendar" className={getLinkClass} onClick={closeMenu}>
+              <Calendar size={18} />
+              <span>Calendar</span>
+            </NavLink>
+            <NavLink to="/statistics" className={getLinkClass} onClick={closeMenu}>
+              <BarChart2 size={18} />
+              <span>Stats</span>
+            </NavLink>
+            <NavLink to="/meditation" className={getLinkClass} onClick={closeMenu}>
+              <Video size={18} />
+              <span>Meditation</span>
+            </NavLink>
+            <NavLink to="/settings" className={getLinkClass} onClick={closeMenu}>
+              <Settings size={18} />
+              <span>Settings</span>
+            </NavLink>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
