@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,7 +96,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
     setIsInterpreting(true);
     
     try {
-      const result = await getAIInterpretation({ description, type });
+      const result = await getAIInterpretation({ description, type, mood });
       setInterpretation(result);
       toast({
         title: "Dream interpreted",

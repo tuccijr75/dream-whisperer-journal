@@ -30,7 +30,7 @@ const DreamInterpretation = ({ interpretation, className }: DreamInterpretationP
             const [title, ...listItems] = paragraph.split('\n');
             return (
               <div key={index} className="space-y-2">
-                <p className="font-medium">{title}</p>
+                <p className="font-medium text-dream-deep-purple">{title}</p>
                 <ul className="space-y-1 list-disc pl-5">
                   {listItems.map((item, i) => (
                     <li key={i} className="text-sm text-muted-foreground">{item.substring(1).trim()}</li>
@@ -40,6 +40,14 @@ const DreamInterpretation = ({ interpretation, className }: DreamInterpretationP
             );
           }
           
+          // Check if this is a section title (at the start of the interpretation)
+          if (index === 0 || index === 1) {
+            return (
+              <p key={index} className="text-sm font-medium leading-relaxed text-dream-purple">{paragraph}</p>
+            );
+          }
+          
+          // Regular paragraph
           return (
             <p key={index} className="text-sm text-muted-foreground leading-relaxed">{paragraph}</p>
           );
