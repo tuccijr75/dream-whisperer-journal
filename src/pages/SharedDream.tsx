@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, MessageSquare, Tag } from "lucide-react";
 import DreamImage from "@/components/DreamImage";
 import DreamInterpretation from "@/components/DreamInterpretation";
 import { cn } from "@/lib/utils";
@@ -142,6 +142,31 @@ const SharedDream = () => {
           {dream.interpretation && (
             <div className="pt-4">
               <DreamInterpretation interpretation={dream.interpretation} />
+            </div>
+          )}
+          
+          {dream.comments && dream.comments.length > 0 && (
+            <div className="pt-6">
+              <h3 className="text-lg font-medium flex items-center gap-2 mb-3">
+                <MessageSquare className="h-4 w-4" />
+                Comments
+                <span className="text-xs bg-dream-light-purple/30 px-1.5 py-0.5 rounded-full">
+                  {dream.comments.length}
+                </span>
+              </h3>
+              <div className="space-y-3">
+                {dream.comments.map((comment) => (
+                  <div key={comment.id} className="p-3 bg-white rounded-md shadow-sm border border-dream-light-purple/10">
+                    <div className="flex justify-between items-start">
+                      <div className="font-medium">{comment.author}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {format(new Date(comment.date), "MMM d, yyyy")}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-sm">{comment.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </CardContent>

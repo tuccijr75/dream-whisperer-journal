@@ -5,6 +5,13 @@ export type DreamType = 'normal' | 'lucid' | 'nightmare' | 'recurring';
 
 export type DreamCategory = 'personal' | 'adventure' | 'fantasy' | 'childhood' | 'spiritual' | 'premonition' | 'uncategorized';
 
+export interface DreamComment {
+  id: string;
+  text: string;
+  author: string;
+  date: string; // ISO string
+}
+
 export interface Dream {
   id: string;
   title: string;
@@ -18,6 +25,7 @@ export interface Dream {
   interpretation?: string;
   imageUrl?: string; // URL to AI-generated image
   isPublic?: boolean; // Whether the dream can be shared
+  comments?: DreamComment[]; // Comments on the dream
 }
 
 export interface DreamTemplate {

@@ -1,5 +1,5 @@
 
-import { Dream } from '../types/dream';
+import { Dream, DreamComment } from '../types/dream';
 
 const STORAGE_KEY = 'dream-whisperer-entries';
 
@@ -46,6 +46,31 @@ export const togglePublicDream = (id: string, isPublic: boolean): void => {
   
   if (index !== -1) {
     dreams[index].isPublic = isPublic;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
+  }
+};
+
+export const addDreamComment = (dreamId: string, comment: DreamComment): void => {
+  const dreams = getDreams();
+  const index = dreams.findIndex((dream) => dream.id === dreamId);
+  
+  if (index !== -1) {
+    if (!dreams[index].comments) {
+      dreams[index].comments = [];
+    }
+    dreams[index].comments.push(comment);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
+  }
+};
+
+export const deleteDreamComment = (dreamId: string, commentId: string): void => {
+  const dreams = getDreams();
+  const dreamIndex = dreams.findIndex((dream) => dream.id === dreamId);
+  
+  if (dreamIndex !== -1 && dreams[dreamIndex].comments) {
+    dreams[dreamIndex].comments = dreams[dreamIndex].comments!.filter(
+      comment => comment.id !== commentId
+    );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
   }
 };

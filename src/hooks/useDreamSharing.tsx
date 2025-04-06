@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { Dream } from "@/types/dream";
-import { togglePublicDream } from "@/utils/dreamStorage";
+import { Dream, DreamComment } from "@/types/dream";
+import { togglePublicDream, addDreamComment, deleteDreamComment } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
 
 export const useDreamSharing = (dream: Dream, onUpdate: () => void) => {
@@ -29,10 +29,22 @@ export const useDreamSharing = (dream: Dream, onUpdate: () => void) => {
     onUpdate();
   };
   
+  const addComment = (comment: DreamComment) => {
+    addDreamComment(dream.id, comment);
+    onUpdate();
+  };
+  
+  const deleteComment = (commentId: string) => {
+    deleteDreamComment(dream.id, commentId);
+    onUpdate();
+  };
+  
   return {
     isShareModalOpen,
     openShareModal,
     closeShareModal,
-    togglePublic
+    togglePublic,
+    addComment,
+    deleteComment
   };
 };
