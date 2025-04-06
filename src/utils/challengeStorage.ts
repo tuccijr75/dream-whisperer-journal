@@ -11,7 +11,7 @@ const DEFAULT_CHALLENGES: DreamChallenge[] = [
     id: crypto.randomUUID(),
     title: 'Lucid Dreaming Week',
     description: 'Try to achieve lucidity in your dreams over the next 7 days',
-    prompt: 'Tonight, as you fall asleep, remind yourself that you want to recognize when you're dreaming. Look for dream signs - unusual events that hint you might be in a dream.',
+    prompt: 'Tonight, as you fall asleep, remind yourself that you want to recognize when you\'re dreaming. Look for dream signs - unusual events that hint you might be in a dream.',
     startDate: new Date().toISOString(),
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
     type: 'weekly',
