@@ -12,6 +12,15 @@ export const saveDream = (dream: Dream): void => {
   const dreams = getDreams();
   dreams.push(dream);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
+  
+  // If this dream is part of a challenge, update challenge completion stats
+  if (dream.challengeId) {
+    // This will be handled by the challenge storage
+    const event = new CustomEvent('dreamChallengeCompleted', { 
+      detail: { dreamId: dream.id, challengeId: dream.challengeId } 
+    });
+    window.dispatchEvent(event);
+  }
 };
 
 export const updateDream = (updatedDream: Dream): void => {

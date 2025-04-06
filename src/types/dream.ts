@@ -26,6 +26,7 @@ export interface Dream {
   imageUrl?: string; // URL to AI-generated image
   isPublic?: boolean; // Whether the dream can be shared
   comments?: DreamComment[]; // Comments on the dream
+  challengeId?: string; // Reference to a challenge
 }
 
 export interface DreamTemplate {
@@ -45,6 +46,20 @@ export interface DreamReminder {
   enabled: boolean;
   sound: 'gentle' | 'nature' | 'crystal' | 'none';
   volume: number; // 0-100
+}
+
+// Dream challenge types
+export interface DreamChallenge {
+  id: string;
+  title: string;
+  description: string;
+  prompt: string;
+  startDate: string; // ISO string
+  endDate: string; // ISO string
+  type: 'daily' | 'weekly';
+  isActive: boolean;
+  participants?: number; // Number of users who have accepted the challenge
+  completions?: number; // Number of dreams created for this challenge
 }
 
 // Add calendar-related types
