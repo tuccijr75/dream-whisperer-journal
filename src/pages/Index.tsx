@@ -79,17 +79,19 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <>
       <div className="background-pattern"></div>
-      <div className="container py-8 px-4 max-w-6xl relative z-10">
-        <div className="flex items-center justify-between">
-          <Header />
+      <div className="min-h-screen">
+        <div className="container py-8 px-4 max-w-6xl relative z-10">
+          <div className="flex items-center justify-between">
+            <Header />
+          </div>
+          <main className="pt-4 pb-16">
+            {renderContent()}
+          </main>
         </div>
-        <main className="pt-4 pb-16">
-          {renderContent()}
-        </main>
       </div>
-    </div>
+    </>
   );
 };
 

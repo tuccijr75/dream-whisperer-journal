@@ -83,7 +83,7 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position: fixed; /* Change to fixed to cover the entire viewport */
+  position: fixed; /* Keep this fixed */
   top: 0;
   left: 0;
   width: 100%;
@@ -117,3 +117,4 @@ html, body {
 .dream-text {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+
