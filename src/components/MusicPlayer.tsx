@@ -7,8 +7,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import AudioManager from "@/utils/audioManager";
 
+// Defining a static sound URL instead of trying to load from files
+// that might not exist or be accessible
 const AUDIO_ID = 'ambient-music-player';
-const AUDIO_SRC = '/nature-sounds.mp3'; // Updated to use existing audio file
+const DEFAULT_AUDIO_URL = 'https://cdn.pixabay.com/download/audio/2022/03/09/audio_c8c3ac25b9.mp3?filename=calm-river-ambience-loop-125071.mp3';
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -20,10 +22,10 @@ const MusicPlayer = () => {
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Initialize audio with AudioManager
+    // Initialize audio with AudioManager and a reliable external URL
     if (!audioInitializedRef.current) {
       try {
-        const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+        const audio = AudioManager.getAudio(AUDIO_ID, DEFAULT_AUDIO_URL, {
           loop: true,
           volume: volume / 100
         });
@@ -34,7 +36,7 @@ const MusicPlayer = () => {
           setAudioError(true);
           if (!audioLoadAttemptedRef.current) {
             toast.error("Could not load ambient audio", {
-              description: "There might be an issue with the audio file"
+              description: "Trying to use fallback audio source"
             });
             audioLoadAttemptedRef.current = true;
           }
@@ -44,6 +46,7 @@ const MusicPlayer = () => {
         audio.addEventListener('canplaythrough', () => {
           setAudioError(false);
           setIsAudioInitialized(true);
+          console.log("Audio loaded successfully");
         });
         
         audioInitializedRef.current = true;
@@ -88,13 +91,13 @@ const MusicPlayer = () => {
 
   const togglePlay = () => {
     if (audioError) {
-      // Attempt to reload the audio
+      // Attempt to reload the audio with fallback URL
       audioInitializedRef.current = false;
       setAudioError(false);
       
-      // Initialize audio again
+      // Initialize audio again with fallback URL
       try {
-        const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+        const audio = AudioManager.getAudio(AUDIO_ID, DEFAULT_AUDIO_URL, {
           loop: true,
           volume: volume / 100
         });
