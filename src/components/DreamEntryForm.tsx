@@ -9,13 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dream, DreamMood, DreamType } from "@/types/dream";
 import { saveDream } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Calendar, CalendarIcon, Loader2, Moon, Star } from "lucide-react";
+import { Brain, Calendar, CalendarIcon, Image, Loader2, Moon, Star } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { getAIInterpretation } from "@/utils/dreamInterpreter";
+import { generateDreamImage } from "@/utils/dreamImageGenerator";
 import DreamInterpretation from "./DreamInterpretation";
+import DreamImage from "./DreamImage";
 
 interface DreamEntryFormProps {
   onDreamSaved: () => void;
@@ -31,6 +33,8 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [interpretation, setInterpretation] = useState<string>("");
   const [isInterpreting, setIsInterpreting] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const dreamMoods: { value: DreamMood; label: string }[] = [
     { value: "happy", label: "Happy" },
@@ -69,6 +73,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       type,
       isStarred: false,
       interpretation: interpretation || undefined,
+      imageUrl: imageUrl || undefined,
     };
 
     saveDream(newDream);
@@ -106,6 +111,36 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       });
     } finally {
       setIsInterpreting(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!description.trim()) {
+      toast({
+        title: "Cannot generate image",
+        description: "Please enter a dream description first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    
+    try {
+      const imageUrl = await generateDreamImage(description, type);
+      setImageUrl(imageUrl);
+      toast({
+        title: "Image generated",
+        description: "Your dream visualization is ready",
+      });
+    } catch (error) {
+      toast({
+        title: "Image generation failed",
+        description: "Could not create an image for your dream. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
@@ -201,7 +236,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <Button 
               type="button" 
               onClick={handleInterpretDream}
@@ -221,11 +256,37 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
                 </>
               )}
             </Button>
+            
+            <Button 
+              type="button" 
+              onClick={handleGenerateImage}
+              disabled={isGeneratingImage || !description.trim()}
+              variant="outline"
+              className="w-full border-dream-light-purple/30 hover:bg-dream-purple/10"
+            >
+              {isGeneratingImage ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Image...
+                </>
+              ) : (
+                <>
+                  <Image className="mr-2 h-4 w-4" />
+                  Visualize Dream
+                </>
+              )}
+            </Button>
           </div>
 
           {interpretation && (
             <div className="pt-2">
               <DreamInterpretation interpretation={interpretation} />
+            </div>
+          )}
+
+          {imageUrl && (
+            <div className="pt-2">
+              <DreamImage imageUrl={imageUrl} />
             </div>
           )}
         </CardContent>

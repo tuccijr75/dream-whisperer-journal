@@ -5,11 +5,13 @@ import { Dream } from "@/types/dream";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Star, Trash2, Brain } from "lucide-react";
+import { CalendarIcon, Star, Trash2, Brain, Image } from "lucide-react";
 import { toggleStarDream, deleteDream } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import DreamInterpretation from "./DreamInterpretation";
+import DreamImage from "./DreamImage";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface DreamCardProps {
   dream: Dream;
@@ -55,6 +57,8 @@ const DreamCard = ({ dream, onUpdate }: DreamCardProps) => {
     });
     onUpdate();
   };
+
+  const hasInsights = dream.interpretation || dream.imageUrl;
   
   return (
     <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -68,18 +72,42 @@ const DreamCard = ({ dream, onUpdate }: DreamCardProps) => {
             </CardDescription>
           </div>
           <div className="flex items-center space-x-1">
-            {dream.interpretation && (
+            {hasInsights && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button size="icon" variant="ghost" className="h-8 w-8 text-dream-purple hover:text-dream-deep-purple">
-                    <Brain className="h-4 w-4" />
+                    {dream.interpretation && <Brain className="h-4 w-4" />}
+                    {!dream.interpretation && dream.imageUrl && <Image className="h-4 w-4" />}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Dream Analysis</DialogTitle>
+                    <DialogTitle>Dream Insights</DialogTitle>
                   </DialogHeader>
-                  <DreamInterpretation interpretation={dream.interpretation} />
+                  
+                  {dream.interpretation && dream.imageUrl ? (
+                    <Tabs defaultValue="analysis" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="analysis" className="flex items-center gap-1">
+                          <Brain className="h-4 w-4" /> Analysis
+                        </TabsTrigger>
+                        <TabsTrigger value="visualization" className="flex items-center gap-1">
+                          <Image className="h-4 w-4" /> Visualization
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="analysis" className="pt-4">
+                        <DreamInterpretation interpretation={dream.interpretation} />
+                      </TabsContent>
+                      <TabsContent value="visualization" className="pt-4">
+                        <DreamImage imageUrl={dream.imageUrl} />
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    <>
+                      {dream.interpretation && <DreamInterpretation interpretation={dream.interpretation} />}
+                      {dream.imageUrl && <DreamImage imageUrl={dream.imageUrl} />}
+                    </>
+                  )}
                 </DialogContent>
               </Dialog>
             )}

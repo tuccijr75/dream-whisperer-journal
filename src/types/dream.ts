@@ -13,4 +13,5 @@ export interface Dream {
   isStarred?: boolean;
   tags?: string[];
   interpretation?: string;
+  imageUrl?: string; // URL to AI-generated image
 }
