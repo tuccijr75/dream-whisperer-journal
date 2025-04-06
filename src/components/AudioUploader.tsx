@@ -1,8 +1,9 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Check, AlertCircle } from "lucide-react";
+import { Upload, X, Check, AlertCircle, PlayCircle, PauseCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AudioManager from "@/utils/audioManager";
 
 interface AudioUploaderProps {
   onAudioUploaded?: (audioUrl: string) => void;
@@ -12,7 +13,12 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
+  const [fileSize, setFileSize] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const TEST_AUDIO_ID = 'test-uploaded-audio';
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -29,24 +35,80 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
     }
 
     setIsUploading(true);
+    setFileName(file.name);
+    setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
     
     // Create a local URL for the file
     const objectUrl = URL.createObjectURL(file);
     
-    // Simulate a short delay to show the upload process
-    setTimeout(() => {
-      setUploadedFile(objectUrl);
-      setIsUploading(false);
+    // Test if audio can be played
+    try {
+      // Clean up previous test audio if it exists
+      AudioManager.disposeAudio(TEST_AUDIO_ID);
       
-      if (onAudioUploaded) {
-        onAudioUploaded(objectUrl);
-      }
-      
-      toast({
-        title: "Audio uploaded",
-        description: `${file.name} is now available in your app`,
+      // Create test audio and set up error handling
+      const audio = AudioManager.getAudio(TEST_AUDIO_ID, objectUrl, {
+        volume: 0, // Silent for testing
       });
-    }, 1000);
+      
+      AudioManager.onError(TEST_AUDIO_ID, () => {
+        console.error("Error loading uploaded audio file");
+        setIsUploading(false);
+        toast({
+          title: "Audio file cannot be played",
+          description: "The file might be corrupted or in an unsupported format.",
+          variant: "destructive",
+        });
+        URL.revokeObjectURL(objectUrl);
+      });
+      
+      // Set up success handler
+      audio.addEventListener('canplaythrough', () => {
+        // Audio is playable
+        setUploadedFile(objectUrl);
+        setIsUploading(false);
+        
+        if (onAudioUploaded) {
+          onAudioUploaded(objectUrl);
+        }
+        
+        toast({
+          title: "Audio uploaded",
+          description: `${file.name} is now available in your app`,
+        });
+        
+        // Store in localStorage for persistence
+        try {
+          localStorage.setItem('dream-whisperer-user-audio', objectUrl);
+        } catch (err) {
+          console.warn("Could not store audio URL in localStorage", err);
+        }
+      });
+      
+      // Set a timeout to handle files that neither succeed nor fail
+      setTimeout(() => {
+        if (isUploading) {
+          setIsUploading(false);
+          toast({
+            title: "Upload timed out",
+            description: "The audio file took too long to process.",
+            variant: "destructive",
+          });
+          URL.revokeObjectURL(objectUrl);
+          AudioManager.disposeAudio(TEST_AUDIO_ID);
+        }
+      }, 10000); // 10 second timeout
+      
+    } catch (err) {
+      console.error("Failed to test audio playability:", err);
+      setIsUploading(false);
+      toast({
+        title: "Error uploading audio",
+        description: "Could not process the audio file",
+        variant: "destructive",
+      });
+      URL.revokeObjectURL(objectUrl);
+    }
   };
 
   const handleButtonClick = () => {
@@ -56,12 +118,43 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
   const handleClearFile = () => {
     if (uploadedFile) {
       URL.revokeObjectURL(uploadedFile);
+      // Cleanup test audio if it exists
+      AudioManager.disposeAudio(TEST_AUDIO_ID);
+      // Remove from localStorage
+      localStorage.removeItem('dream-whisperer-user-audio');
     }
     setUploadedFile(null);
+    setFileName("");
+    setFileSize("");
+    setIsPlaying(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+  
+  const togglePlayback = () => {
+    if (!uploadedFile || !audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(err => {
+        console.error("Failed to play audio:", err);
+        toast({
+          title: "Playback failed",
+          description: "Could not play the audio file",
+          variant: "destructive",
+        });
+      });
+    }
+    
+    setIsPlaying(!isPlaying);
+  };
+  
+  // Handle audio element events
+  const handleAudioPlay = () => setIsPlaying(true);
+  const handleAudioPause = () => setIsPlaying(false);
+  const handleAudioEnded = () => setIsPlaying(false);
 
   return (
     <div className="space-y-3">
@@ -96,11 +189,36 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
       </div>
       
       {uploadedFile && (
-        <div className="flex items-center p-2 rounded-md bg-muted/50 border border-dream-light-purple/30">
-          <Check className="text-green-500 mr-2 h-4 w-4" />
-          <p className="text-sm truncate flex-1">Audio ready for use</p>
-          <audio controls className="w-full max-w-[200px] h-8">
-            <source src={uploadedFile} />
+        <div className="flex flex-col p-3 rounded-md bg-muted/50 border border-dream-light-purple/30">
+          <div className="flex items-center mb-2">
+            <Check className="text-green-500 mr-2 h-4 w-4 flex-shrink-0" />
+            <div className="flex flex-col flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{fileName}</p>
+              <p className="text-xs text-muted-foreground">{fileSize}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={togglePlayback}
+              className="flex-shrink-0 h-8 w-8"
+            >
+              {isPlaying ? (
+                <PauseCircle className="h-5 w-5 text-dream-purple" />
+              ) : (
+                <PlayCircle className="h-5 w-5 text-dream-purple" />
+              )}
+            </Button>
+          </div>
+          
+          <audio 
+            ref={audioRef}
+            src={uploadedFile}
+            onPlay={handleAudioPlay}
+            onPause={handleAudioPause}
+            onEnded={handleAudioEnded}
+            className="w-full h-8"
+            controls
+          >
             Your browser does not support the audio element.
           </audio>
         </div>
@@ -109,7 +227,11 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
       <div className="text-xs text-muted-foreground">
         <p className="flex items-center">
           <AlertCircle className="mr-1 h-3 w-3" />
-          Note: Uploaded audio is stored temporarily and will not persist after page refresh.
+          Supported formats: MP3, WAV, OGG, AAC (max 10MB)
+        </p>
+        <p className="flex items-center mt-1">
+          <AlertCircle className="mr-1 h-3 w-3" />
+          Note: Uploaded audio is stored in your browser and may not persist after closing the app.
         </p>
       </div>
     </div>

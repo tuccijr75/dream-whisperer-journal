@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Music } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import DreamEntryForm from "@/components/DreamEntryForm";
 import DreamList from "@/components/DreamList";
@@ -20,7 +21,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [showAudioUploader, setShowAudioUploader] = useState(false);
+  const [showAudioUploader, setShowAudioUploader] = useState(true); // Default to shown
   
   // Get challenge ID from URL if it exists
   const challengeId = searchParams.get('challengeId');
@@ -78,7 +79,7 @@ const Index = () => {
   const handleAudioUploaded = (audioUrl: string) => {
     toast({
       title: "Audio Ready",
-      description: "Your audio is now available for meditation sessions",
+      description: "Your audio is now available for meditation sessions and can be played in the Music Player",
     });
   };
 
@@ -105,7 +106,8 @@ const Index = () => {
               onClick={() => setShowAudioUploader(!showAudioUploader)}
               className="bg-dream-gradient hover:opacity-90 transition-opacity text-white"
             >
-              Upload Audio
+              <Music className="mr-2 h-4 w-4" />
+              {showAudioUploader ? "Hide Audio Upload" : "Show Audio Upload"}
             </Button>
             <Button 
               onClick={handleAddDream}
@@ -118,8 +120,11 @@ const Index = () => {
         </div>
         
         {showAudioUploader && (
-          <div className="bg-white/50 backdrop-blur-sm p-4 rounded-lg border border-dream-light-purple/30">
-            <h3 className="text-lg font-medium mb-3">Custom Audio Uploader</h3>
+          <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-dream-light-purple/30 shadow-lg">
+            <h3 className="text-lg font-medium mb-3 text-dream-dark-purple">Upload Custom Audio</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Upload your own audio files to use with Dream Whisperer for meditation and sleep.
+            </p>
             <AudioUploader onAudioUploaded={handleAudioUploaded} />
           </div>
         )}
