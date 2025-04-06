@@ -9,6 +9,7 @@ import CalendarView from "./pages/Calendar";
 import Statistics from "./pages/Statistics";
 import Meditation from "./pages/Meditation";
 import Settings from "./pages/Settings";
+import SharedDream from "./pages/SharedDream";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import { useState } from "react";
@@ -32,6 +33,7 @@ const App = () => {
               <Route path="/statistics" element={<Layout><Statistics /></Layout>} />
               <Route path="/meditation" element={<Layout><Meditation /></Layout>} />
               <Route path="/settings" element={<Layout><Settings /></Layout>} />
+              <Route path="/shared-dream/:id" element={<SharedDream />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

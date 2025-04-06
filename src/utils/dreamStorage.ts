@@ -39,3 +39,23 @@ export const toggleStarDream = (id: string): void => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
   }
 };
+
+export const togglePublicDream = (id: string, isPublic: boolean): void => {
+  const dreams = getDreams();
+  const index = dreams.findIndex((dream) => dream.id === id);
+  
+  if (index !== -1) {
+    dreams[index].isPublic = isPublic;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dreams));
+  }
+};
+
+export const getDreamById = (id: string): Dream | undefined => {
+  const dreams = getDreams();
+  return dreams.find((dream) => dream.id === id);
+};
+
+export const getDreamsByCategory = (category: string): Dream[] => {
+  const dreams = getDreams();
+  return dreams.filter((dream) => dream.category === category);
+};

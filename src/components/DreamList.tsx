@@ -1,6 +1,8 @@
+
 import { useState, useMemo } from "react";
-import { Dream, DreamMood, DreamType } from "@/types/dream";
+import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
 import DreamCard from "./DreamCard";
+import DreamCategories from "./DreamCategories";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -22,6 +24,7 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [moodFilter, setMoodFilter] = useState<DreamMood | "all">("all");
   const [typeFilter, setTypeFilter] = useState<DreamType | "all">("all");
+  const [categoryFilter, setCategoryFilter] = useState<DreamCategory | "all">("all");
   const [dateRange, setDateRange] = useState<DateRange>({
     from: undefined,
     to: undefined,
@@ -41,7 +44,7 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
   }, [dreams]);
   
   const filteredDreams = useMemo(() => {
-    if (!searchQuery.trim() && moodFilter === "all" && typeFilter === "all" && !dateRange.from && !tagFilter) {
+    if (!searchQuery.trim() && moodFilter === "all" && typeFilter === "all" && categoryFilter === "all" && !dateRange.from && !tagFilter) {
       return dreams;
     }
     
@@ -56,6 +59,9 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
       
       // Type filter
       const matchesType = typeFilter === "all" || dream.type === typeFilter;
+      
+      // Category filter
+      const matchesCategory = categoryFilter === "all" || dream.category === categoryFilter;
       
       // Date range filter
       let matchesDate = true;
@@ -76,9 +82,9 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
       const matchesTag = !tagFilter || 
         (dream.tags && dream.tags.some(tag => tag.toLowerCase() === tagFilter.toLowerCase()));
       
-      return matchesSearch && matchesMood && matchesType && matchesDate && matchesTag;
+      return matchesSearch && matchesMood && matchesType && matchesCategory && matchesDate && matchesTag;
     });
-  }, [dreams, searchQuery, moodFilter, typeFilter, dateRange, tagFilter]);
+  }, [dreams, searchQuery, moodFilter, typeFilter, categoryFilter, dateRange, tagFilter]);
   
   // Group dreams by month
   const groupedDreams = useMemo(() => {
@@ -117,14 +123,21 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
   const resetFilters = () => {
     setMoodFilter("all");
     setTypeFilter("all");
+    setCategoryFilter("all");
     setDateRange({ from: undefined, to: undefined });
     setTagFilter("");
   };
 
-  const hasActiveFilters = moodFilter !== "all" || typeFilter !== "all" || !!dateRange.from || !!tagFilter;
+  const hasActiveFilters = moodFilter !== "all" || typeFilter !== "all" || categoryFilter !== "all" || !!dateRange.from || !!tagFilter;
 
   return (
     <div className="space-y-6">
+      <DreamCategories 
+        onCategorySelect={setCategoryFilter} 
+        selectedCategory={categoryFilter} 
+        dreams={dreams}
+      />
+      
       <div className="flex flex-col gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -263,6 +276,12 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
               <Badge className="bg-dream-light-purple/30 hover:bg-dream-light-purple/50" variant="secondary">
                 Type: {typeFilter}
                 <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => setTypeFilter("all")} />
+              </Badge>
+            )}
+            {categoryFilter !== "all" && (
+              <Badge className="bg-dream-light-purple/30 hover:bg-dream-light-purple/50" variant="secondary">
+                Category: {categoryFilter}
+                <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => setCategoryFilter("all")} />
               </Badge>
             )}
             {dateRange.from && (

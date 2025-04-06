@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dream, DreamMood, DreamType } from "@/types/dream";
+import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
 import { saveDream } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Calendar, CalendarIcon, Image, Loader2, Moon, Star } from "lucide-react";
@@ -31,6 +31,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
   const [description, setDescription] = useState("");
   const [mood, setMood] = useState<DreamMood>("peaceful");
   const [type, setType] = useState<DreamType>("normal");
+  const [category, setCategory] = useState<DreamCategory>("uncategorized");
   const [date, setDate] = useState<Date>(new Date());
   const [interpretation, setInterpretation] = useState<string>("");
   const [isInterpreting, setIsInterpreting] = useState(false);
@@ -54,6 +55,16 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
     { value: "recurring", label: "Recurring Dream" },
   ];
 
+  const dreamCategories: { value: DreamCategory; label: string }[] = [
+    { value: "personal", label: "Personal" },
+    { value: "adventure", label: "Adventure" },
+    { value: "fantasy", label: "Fantasy" },
+    { value: "childhood", label: "Childhood" },
+    { value: "spiritual", label: "Spiritual" },
+    { value: "premonition", label: "Premonition" },
+    { value: "uncategorized", label: "Uncategorized" },
+  ];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -73,10 +84,12 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       date: date.toISOString(),
       mood,
       type,
+      category,
       isStarred: false,
       tags: tags.length > 0 ? tags : undefined,
       interpretation: interpretation || undefined,
       imageUrl: imageUrl || undefined,
+      isPublic: false,
     };
 
     saveDream(newDream);
@@ -237,6 +250,22 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Dream Category</Label>
+            <Select value={category} onValueChange={(value) => setCategory(value as DreamCategory)}>
+              <SelectTrigger className="border-dream-light-purple/30">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {dreamCategories.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
