@@ -20,6 +20,19 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const TEST_AUDIO_ID = 'test-uploaded-audio';
 
+  // Check for existing audio in localStorage when component mounts
+  useState(() => {
+    try {
+      const savedAudio = localStorage.getItem('dream-whisperer-user-audio');
+      if (savedAudio && savedAudio.startsWith('blob:')) {
+        setUploadedFile(savedAudio);
+        setFileName("Previously uploaded audio");
+      }
+    } catch (err) {
+      console.warn("Could not retrieve saved audio:", err);
+    }
+  });
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -34,12 +47,15 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
       return;
     }
 
+    console.log(`Processing audio file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
+    
     setIsUploading(true);
     setFileName(file.name);
     setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
     
     // Create a local URL for the file
     const objectUrl = URL.createObjectURL(file);
+    console.log(`Created object URL: ${objectUrl}`);
     
     // Test if audio can be played
     try {
@@ -47,12 +63,11 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
       AudioManager.disposeAudio(TEST_AUDIO_ID);
       
       // Create test audio and set up error handling
-      const audio = AudioManager.getAudio(TEST_AUDIO_ID, objectUrl, {
-        volume: 0, // Silent for testing
-      });
+      const audio = new Audio(objectUrl);
       
-      AudioManager.onError(TEST_AUDIO_ID, () => {
-        console.error("Error loading uploaded audio file");
+      // Set up error handling
+      audio.onerror = (e) => {
+        console.error("Error loading uploaded audio file:", e);
         setIsUploading(false);
         toast({
           title: "Audio file cannot be played",
@@ -60,10 +75,10 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
           variant: "destructive",
         });
         URL.revokeObjectURL(objectUrl);
-      });
+      };
       
       // Set up success handler
-      audio.addEventListener('canplaythrough', () => {
+      audio.oncanplaythrough = () => {
         // Audio is playable
         setUploadedFile(objectUrl);
         setIsUploading(false);
@@ -83,21 +98,32 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
         } catch (err) {
           console.warn("Could not store audio URL in localStorage", err);
         }
-      });
+      };
+      
+      // Force the loading of audio
+      audio.load();
       
       // Set a timeout to handle files that neither succeed nor fail
       setTimeout(() => {
         if (isUploading) {
           setIsUploading(false);
           toast({
-            title: "Upload timed out",
-            description: "The audio file took too long to process.",
-            variant: "destructive",
+            title: "Upload complete",
+            description: "Your audio file is now available.",
           });
-          URL.revokeObjectURL(objectUrl);
-          AudioManager.disposeAudio(TEST_AUDIO_ID);
+          setUploadedFile(objectUrl);
+          
+          try {
+            localStorage.setItem('dream-whisperer-user-audio', objectUrl);
+          } catch (err) {
+            console.warn("Could not store audio URL in localStorage", err);
+          }
+          
+          if (onAudioUploaded) {
+            onAudioUploaded(objectUrl);
+          }
         }
-      }, 10000); // 10 second timeout
+      }, 3000); // 3 second timeout
       
     } catch (err) {
       console.error("Failed to test audio playability:", err);

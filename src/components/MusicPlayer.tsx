@@ -44,6 +44,8 @@ const MusicPlayer = () => {
       return;
     }
 
+    console.log(`Processing audio file in MusicPlayer: ${file.name}, type: ${file.type}`);
+
     // Create a local URL for the file
     const objectUrl = URL.createObjectURL(file);
     
@@ -80,7 +82,7 @@ const MusicPlayer = () => {
       audioLoadAttemptedRef.current = false;
       AudioManager.disposeAudio(AUDIO_ID);
       initializeAudio(customAudio);
-      toast.info("Trying your custom audio");
+      toast.info("Playing your custom audio");
       return;
     }
     
@@ -105,7 +107,7 @@ const MusicPlayer = () => {
     });
   };
   
-  const initializeAudio = (audioSource) => {
+  const initializeAudio = (audioSource: string) => {
     if (audioInitializedRef.current) return;
     
     try {
@@ -158,8 +160,26 @@ const MusicPlayer = () => {
     const customAudio = localStorage.getItem(USER_AUDIO_KEY);
     
     if (customAudio) {
-      initializeAudio(customAudio);
-      currentSourceIndexRef.current = -1; // Mark as using custom audio
+      try {
+        // Make sure the blob URL is still valid
+        fetch(customAudio, { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              initializeAudio(customAudio);
+              currentSourceIndexRef.current = -1; // Mark as using custom audio
+            } else {
+              throw new Error("Blob URL no longer valid");
+            }
+          })
+          .catch(err => {
+            console.warn("Custom audio URL no longer valid:", err);
+            localStorage.removeItem(USER_AUDIO_KEY);
+            initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
+          });
+      } catch (err) {
+        console.warn("Error checking custom audio:", err);
+        initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
+      }
     } else {
       // Initialize audio with first source on component mount
       initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
@@ -247,6 +267,7 @@ const MusicPlayer = () => {
         onClick={handleUploadClick}
         className="hover:bg-dream-light-purple/20"
         aria-label="Upload custom audio"
+        title="Upload custom audio"
       >
         <Upload className="h-4 w-4 text-dream-purple" />
       </Button>

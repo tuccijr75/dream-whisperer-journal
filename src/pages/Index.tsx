@@ -77,6 +77,7 @@ const Index = () => {
   };
 
   const handleAudioUploaded = (audioUrl: string) => {
+    console.log("Audio uploaded successfully:", audioUrl);
     toast({
       title: "Audio Ready",
       description: "Your audio is now available for meditation sessions and can be played in the Music Player",
@@ -124,6 +125,7 @@ const Index = () => {
             <h3 className="text-lg font-medium mb-3 text-dream-dark-purple">Upload Custom Audio</h3>
             <p className="text-sm text-gray-600 mb-4">
               Upload your own audio files to use with Dream Whisperer for meditation and sleep.
+              We support MP3, WAV, and other common audio formats.
             </p>
             <AudioUploader onAudioUploaded={handleAudioUploaded} />
           </div>

@@ -1,4 +1,3 @@
-
 /**
  * Audio Manager utility for consistent audio handling across the app
  */
@@ -50,6 +49,8 @@ class AudioManager {
       this.checkAudioFileExists(src).then(exists => {
         if (!exists) {
           console.error(`Audio file ${src} does not exist or is inaccessible`);
+        } else {
+          console.log(`Audio file ${src} exists but had an error loading`);
         }
       });
       
@@ -71,6 +72,19 @@ class AudioManager {
     if (options.volume !== undefined) {
       audio.volume = Math.max(0, Math.min(1, options.volume));
     }
+    
+    // Add specific event listeners for better debugging
+    audio.addEventListener('canplaythrough', () => {
+      console.log(`Audio ${id} is ready to play through without stopping`);
+    });
+    
+    audio.addEventListener('loadeddata', () => {
+      console.log(`Audio ${id} has loaded its data`);
+    });
+    
+    audio.addEventListener('stalled', () => {
+      console.warn(`Audio ${id} playback has stalled`);
+    });
     
     // Hide element but keep in DOM for better iOS compatibility
     audio.style.display = 'none';
