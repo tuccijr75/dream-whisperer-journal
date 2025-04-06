@@ -26,7 +26,7 @@ const MusicPlayer = () => {
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [audioError, setAudioError] = useState(false);
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   const audioInitializedRef = useRef(false);
   const audioLoadAttemptedRef = useRef(false);
   const currentSourceIndexRef = useRef(0);
@@ -61,6 +61,7 @@ const MusicPlayer = () => {
       initializeAudio(objectUrl);
       
       toast.success("Custom audio loaded successfully");
+      setShowUploader(false);
       
       if (isPlaying) {
         AudioManager.playAudio(AUDIO_ID);
@@ -230,55 +231,76 @@ const MusicPlayer = () => {
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    setShowUploader(!showUploader);
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={togglePlay}
-        className="hover:bg-dream-light-purple/20 relative"
-        aria-label={isPlaying ? "Mute music" : "Play music"}
-      >
-        {isPlaying ? (
-          <Volume2 className="h-5 w-5 text-dream-purple" />
-        ) : (
-          <VolumeX className="h-5 w-5 text-dream-purple/70" />
+    <div className="flex flex-col items-end gap-2">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={togglePlay}
+          className="hover:bg-dream-light-purple/20 relative"
+          aria-label={isPlaying ? "Mute music" : "Play music"}
+        >
+          {isPlaying ? (
+            <Volume2 className="h-5 w-5 text-dream-purple" />
+          ) : (
+            <VolumeX className="h-5 w-5 text-dream-purple/70" />
+          )}
+        </Button>
+        
+        {(isPlaying || isAudioInitialized) && (
+          <div className={`${isMobile ? 'w-16' : 'w-24'}`}>
+            <Slider
+              value={[volume]}
+              max={100}
+              step={1}
+              onValueChange={(values) => setVolume(values[0])}
+              className="cursor-pointer"
+            />
+          </div>
         )}
-      </Button>
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleUploadClick}
+          className={`hover:bg-dream-light-purple/20 ${showUploader ? 'bg-dream-light-purple/20' : ''}`}
+          aria-label="Upload custom audio"
+          title="Upload custom audio"
+        >
+          <Upload className="h-4 w-4 text-dream-purple" />
+        </Button>
+      </div>
       
-      {(isPlaying || isAudioInitialized) && (
-        <div className={`${isMobile ? 'w-16' : 'w-24'}`}>
-          <Slider
-            value={[volume]}
-            max={100}
-            step={1}
-            onValueChange={(values) => setVolume(values[0])}
-            className="cursor-pointer"
+      {showUploader && (
+        <div className="mt-2 p-3 bg-white/90 backdrop-blur-sm shadow-md rounded-lg border border-dream-light-purple/30 w-64">
+          <div className="text-sm font-medium mb-2">Upload Music</div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Select an audio file to use as background music
+          </p>
+          <Button
+            size="sm"
+            className="w-full bg-dream-gradient hover:opacity-90"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="mr-2 h-3 w-3" />
+            Choose Audio File
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Supported: MP3, WAV, OGG (max 10MB)
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            onChange={handleFileChange}
+            className="hidden"
           />
         </div>
       )}
-      
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleUploadClick}
-        className="hover:bg-dream-light-purple/20"
-        aria-label="Upload custom audio"
-        title="Upload custom audio"
-      >
-        <Upload className="h-4 w-4 text-dream-purple" />
-      </Button>
-      
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="audio/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
     </div>
   );
 };
