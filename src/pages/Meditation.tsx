@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Moon, Volume2, VolumeX } from "lucide-react";
@@ -315,7 +316,9 @@ const Meditation = () => {
               </div>
             </div>
           </div>
-        ) : (
+        )}
+        
+        {selectedVideo && (
           <div className="space-y-4 animate-fade-in">
             <div className="relative aspect-video w-full rounded-lg overflow-hidden">
               <iframe 
