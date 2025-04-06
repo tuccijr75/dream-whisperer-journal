@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,9 +23,10 @@ interface DreamEntryFormProps {
   onDreamSaved: () => void;
   onCancel: () => void;
   initialTemplate?: DreamTemplate | null;
+  challengeId?: string;
 }
 
-const DreamEntryForm = ({ onDreamSaved, onCancel, initialTemplate }: DreamEntryFormProps) => {
+const DreamEntryForm = ({ onDreamSaved, onCancel, initialTemplate, challengeId }: DreamEntryFormProps) => {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -41,7 +41,6 @@ const DreamEntryForm = ({ onDreamSaved, onCancel, initialTemplate }: DreamEntryF
   const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
-    // If we have an initial template, use it to populate the form
     if (initialTemplate) {
       setTitle(`${initialTemplate.name} - ${format(new Date(), 'MMM d, yyyy')}`);
       setDescription(initialTemplate.description);
@@ -103,6 +102,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel, initialTemplate }: DreamEntryF
       interpretation: interpretation || undefined,
       imageUrl: imageUrl || undefined,
       isPublic: false,
+      challengeId: challengeId,
     };
 
     saveDream(newDream);
