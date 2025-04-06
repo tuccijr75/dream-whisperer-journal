@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import EmptyState from "@/components/EmptyState";
 import DreamEntryForm from "@/components/DreamEntryForm";
 import DreamList from "@/components/DreamList";
+import MusicPlayer from "@/components/MusicPlayer";
 import { getDreams } from "@/utils/dreamStorage";
 import { Dream } from "@/types/dream";
 
@@ -81,7 +82,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-dream-soft-blue via-white to-dream-light-purple/30 background-pattern">
       <div className="container py-8 px-4 max-w-6xl">
-        <Header />
+        <div className="flex items-center justify-between">
+          <Header />
+          <MusicPlayer />
+        </div>
         <main className="pt-4 pb-16">
           {renderContent()}
         </main>

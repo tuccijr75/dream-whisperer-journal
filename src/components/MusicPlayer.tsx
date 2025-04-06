@@ -1,14 +1,16 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(true); // Set to true by default
+  const [isPlaying, setIsPlaying] = useState(false); // Start with false to avoid autoplay issues
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isMobile = useIsMobile();
 
@@ -22,26 +24,6 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.preload = "auto";
     }
-
-    // Attempt to autoplay when component mounts
-    const attemptAutoplay = async () => {
-      try {
-        if (audioRef.current) {
-          // Need to call play within a user gesture event for mobile browsers
-          const playPromise = audioRef.current.play();
-          if (playPromise !== undefined) {
-            await playPromise;
-            setIsAudioInitialized(true);
-            console.log("Autoplay successful");
-          }
-        }
-      } catch (error) {
-        console.warn("Autoplay failed:", error);
-        setIsPlaying(false); // Reset to false if autoplay fails
-      }
-    };
-    
-    attemptAutoplay();
 
     // Cleanup on unmount
     return () => {
@@ -62,9 +44,14 @@ const MusicPlayer = () => {
         playPromise.catch(err => {
           console.error("Failed to play audio:", err);
           setIsPlaying(false);
+          setAutoplayBlocked(true);
+          toast.info("Click the sound icon to start ambient music", {
+            duration: 5000
+          });
         }).then(() => {
           if (playPromise) {
             setIsAudioInitialized(true);
+            setAutoplayBlocked(false);
           }
         });
       }
@@ -89,13 +76,18 @@ const MusicPlayer = () => {
         variant="ghost"
         size="icon"
         onClick={togglePlay}
-        className="hover:bg-dream-light-purple/20"
+        className="hover:bg-dream-light-purple/20 relative"
         aria-label={isPlaying ? "Mute music" : "Play music"}
       >
         {isPlaying ? (
           <Volume2 className="h-5 w-5 text-dream-purple" />
         ) : (
-          <VolumeX className="h-5 w-5 text-dream-purple/70" />
+          <>
+            {autoplayBlocked && (
+              <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+            )}
+            <VolumeX className="h-5 w-5 text-dream-purple/70" />
+          </>
         )}
       </Button>
       {(isPlaying || isAudioInitialized) && (
