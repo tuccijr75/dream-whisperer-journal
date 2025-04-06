@@ -184,3 +184,27 @@ html, body {
 .light .input {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
+/* Ensure the background is applied to the root layout */
+body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Removing padding from root in mobile view to allow full-width background */
+@media (max-width: 767px) {
+  #root {
+    padding: 0;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
