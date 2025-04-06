@@ -79,7 +79,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-dream-light-purple/20">
+    <div className="min-h-screen bg-gradient-to-b from-dream-soft-blue via-white to-dream-light-purple/30 background-pattern">
       <div className="container py-8 px-4 max-w-6xl">
         <Header />
         <main className="pt-4 pb-16">
