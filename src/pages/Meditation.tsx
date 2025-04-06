@@ -1,9 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Moon } from "lucide-react";
+import { Play, Pause, Moon, Volume2, VolumeX } from "lucide-react";
 import MeditationVideoCard from "@/components/MeditationVideoCard";
 import { useToast } from "@/hooks/use-toast";
+import { Slider } from "@/components/ui/slider";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface MeditationVideo {
   id: string;
@@ -51,6 +53,12 @@ const meditationVideos: MeditationVideo[] = [
 
 const Meditation = () => {
   const [selectedVideo, setSelectedVideo] = useState<MeditationVideo | null>(null);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(10); // minutes
+  const [timeRemaining, setTimeRemaining] = useState(10 * 60); // seconds
+  const [volume, setVolume] = useState(50);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
   const handleSelectVideo = (video: MeditationVideo) => {
@@ -65,6 +73,103 @@ const Meditation = () => {
     setSelectedVideo(null);
   };
 
+  useEffect(() => {
+    // Initialize audio
+    if (!audioRef.current) {
+      audioRef.current = new Audio("/ambient-meditation.mp3");
+      audioRef.current.loop = true;
+    }
+    
+    // Set volume
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+    
+    // Clean up
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [volume, isMuted]);
+
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (timerActive && timeRemaining > 0) {
+      interval = window.setInterval(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (timeRemaining === 0 && timerActive) {
+      setTimerActive(false);
+      // Play notification sound
+      const notification = new Audio("/ambient-meditation.mp3"); // Change to a notification sound
+      notification.play();
+      
+      toast({
+        title: "Meditation Complete",
+        description: `Your ${timerDuration} minute meditation session is complete.`,
+      });
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timerActive, timeRemaining, timerDuration, toast]);
+
+  const toggleTimer = () => {
+    if (!timerActive) {
+      // Starting timer
+      setTimeRemaining(timerDuration * 60);
+      
+      // Play ambient sound
+      if (audioRef.current && !isMuted) {
+        audioRef.current.play();
+      }
+    } else {
+      // Pause ambient sound when timer is stopped
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    }
+    
+    setTimerActive(!timerActive);
+  };
+
+  const handleDurationChange = (value: number[]) => {
+    const newDuration = value[0];
+    setTimerDuration(newDuration);
+    
+    // If timer is not active, update the time remaining as well
+    if (!timerActive) {
+      setTimeRemaining(newDuration * 60);
+    }
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : newVolume / 100;
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    
+    if (audioRef.current) {
+      audioRef.current.volume = !isMuted ? 0 : volume / 100;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   return (
     <>
       <div className="space-y-6">
@@ -74,6 +179,74 @@ const Meditation = () => {
             <h2 className="text-xl font-semibold text-white dream-text">Sleep Meditation</h2>
           </div>
         </div>
+        
+        {!selectedVideo && (
+          <Card className="bg-white/50 backdrop-blur-sm border-dream-light-purple/30 mb-6">
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium text-dream-purple">Meditation Timer</h3>
+                
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-4 flex-1">
+                    <p className="text-sm text-dream-deep-purple mb-2">Duration: {timerDuration} minutes</p>
+                    <Slider
+                      value={[timerDuration]}
+                      min={1}
+                      max={60}
+                      step={1}
+                      onValueChange={handleDurationChange}
+                      disabled={timerActive}
+                      className="max-w-xs"
+                    />
+                    
+                    <div className="flex items-center gap-3 mt-4">
+                      <Button
+                        onClick={toggleMute}
+                        variant="outline"
+                        size="icon"
+                        className="border-dream-light-purple/30 h-8 w-8"
+                      >
+                        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                      </Button>
+                      
+                      <Slider
+                        value={[volume]}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onValueChange={handleVolumeChange}
+                        className="max-w-[120px]"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-3xl font-semibold mb-4 text-dream-deep-purple">
+                      {formatTime(timeRemaining)}
+                    </div>
+                    
+                    <Button 
+                      onClick={toggleTimer}
+                      className="bg-dream-gradient hover:opacity-90 min-w-[120px]"
+                    >
+                      {timerActive ? (
+                        <>
+                          <Pause className="mr-2 h-4 w-4" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="mr-2 h-4 w-4" />
+                          Start
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         {selectedVideo ? (
           <div className="space-y-4 animate-fade-in">

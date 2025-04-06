@@ -7,11 +7,14 @@ import DreamEntryForm from "@/components/DreamEntryForm";
 import DreamList from "@/components/DreamList";
 import { getDreams } from "@/utils/dreamStorage";
 import { Dream } from "@/types/dream";
+import Onboarding from "@/components/Onboarding";
+import SearchSuggestions from "@/components/SearchSuggestions";
 
 const Index = () => {
   const [isAddingDream, setIsAddingDream] = useState(false);
   const [dreams, setDreams] = useState<Dream[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     // Load dreams from local storage
@@ -47,6 +50,10 @@ const Index = () => {
     setIsAddingDream(false);
   };
 
+  const handleSearchSelect = (query: string) => {
+    setSearchQuery(query);
+  };
+
   const renderContent = () => {
     if (loading) {
       return <div className="flex justify-center py-12 text-white dream-text">Loading dreams...</div>;
@@ -72,6 +79,11 @@ const Index = () => {
             New Dream
           </Button>
         </div>
+        
+        <div className="mb-4">
+          <SearchSuggestions dreams={dreams} onSelect={handleSearchSelect} />
+        </div>
+        
         <DreamList dreams={dreams} onUpdate={loadDreams} />
       </div>
     );
@@ -79,6 +91,7 @@ const Index = () => {
 
   return (
     <>
+      <Onboarding />
       {renderContent()}
     </>
   );

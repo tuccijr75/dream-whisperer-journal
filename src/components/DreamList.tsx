@@ -13,6 +13,7 @@ import { format, parseISO, isSameMonth, isAfter, isBefore, isSameDay } from "dat
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DateRange } from "react-day-picker";
+import { SearchSuggestions } from "@/components/SearchSuggestions";
 
 interface DreamListProps {
   dreams: Dream[];
@@ -32,7 +33,6 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [tagFilter, setTagFilter] = useState<string>("");
   
-  // Get all unique tags from dreams
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     dreams.forEach(dream => {
@@ -49,36 +49,28 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
     }
     
     return dreams.filter(dream => {
-      // Text search filter
       const matchesSearch = !searchQuery.trim() || 
         dream.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         dream.description.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // Mood filter
       const matchesMood = moodFilter === "all" || dream.mood === moodFilter;
       
-      // Type filter
       const matchesType = typeFilter === "all" || dream.type === typeFilter;
       
-      // Category filter
       const matchesCategory = categoryFilter === "all" || dream.category === categoryFilter;
       
-      // Date range filter
       let matchesDate = true;
       if (dateRange.from) {
         const dreamDate = new Date(dream.date);
         if (dateRange.to) {
-          // Check if dream date is within range
           matchesDate = 
             (isAfter(dreamDate, dateRange.from) || isSameDay(dreamDate, dateRange.from)) && 
             (isBefore(dreamDate, dateRange.to) || isSameDay(dreamDate, dateRange.to));
         } else {
-          // Only from date is set
           matchesDate = isSameDay(dreamDate, dateRange.from);
         }
       }
       
-      // Tag filter
       const matchesTag = !tagFilter || 
         (dream.tags && dream.tags.some(tag => tag.toLowerCase() === tagFilter.toLowerCase()));
       
@@ -86,7 +78,6 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
     });
   }, [dreams, searchQuery, moodFilter, typeFilter, categoryFilter, dateRange, tagFilter]);
   
-  // Group dreams by month
   const groupedDreams = useMemo(() => {
     const groups: Record<string, Dream[]> = {};
     
@@ -101,7 +92,6 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
       groups[monthKey].push(dream);
     });
     
-    // Sort each group by date (newest first)
     Object.keys(groups).forEach(key => {
       groups[key].sort((a, b) => 
         new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -110,8 +100,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
     
     return groups;
   }, [filteredDreams]);
-
-  // Get sorted month keys (newest first)
+  
   const sortedMonthKeys = useMemo(() => {
     return Object.keys(groupedDreams).sort((a, b) => {
       const dateA = new Date(a);
@@ -119,7 +108,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
       return dateB.getTime() - dateA.getTime();
     });
   }, [groupedDreams]);
-
+  
   const resetFilters = () => {
     setMoodFilter("all");
     setTypeFilter("all");
@@ -130,7 +119,6 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
 
   const hasActiveFilters = moodFilter !== "all" || typeFilter !== "all" || categoryFilter !== "all" || !!dateRange.from || !!tagFilter;
 
-  // Simplified view for calendar page
   if (simplified) {
     return (
       <div className="space-y-2">
@@ -156,15 +144,10 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
       />
       
       <div className="flex flex-col gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search your dreams..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-dream-light-purple/30 focus:border-dream-purple"
-          />
-        </div>
+        <SearchSuggestions 
+          dreams={dreams} 
+          onSelect={setSearchQuery}
+        />
         
         <div className="flex items-center justify-between">
           <Button 
