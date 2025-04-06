@@ -3,17 +3,25 @@ import { useState, useEffect, useRef } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(30);
+  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Create audio element
     audioRef.current = new Audio("/ambient-meditation.mp3");
     audioRef.current.loop = true;
     audioRef.current.volume = volume / 100;
+    
+    // iOS requires user interaction to play audio
+    if (audioRef.current) {
+      audioRef.current.preload = "auto";
+    }
 
     // Cleanup on unmount
     return () => {
@@ -28,10 +36,16 @@ const MusicPlayer = () => {
     if (!audioRef.current) return;
     
     if (isPlaying) {
-      audioRef.current.play().catch(err => {
-        console.error("Failed to play audio:", err);
-        setIsPlaying(false);
-      });
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.error("Failed to play audio:", err);
+          setIsPlaying(false);
+        }).then(() => {
+          setIsAudioInitialized(true);
+        });
+      }
     } else {
       audioRef.current.pause();
     }
@@ -63,7 +77,7 @@ const MusicPlayer = () => {
         )}
       </Button>
       {isPlaying && (
-        <div className="w-24">
+        <div className={`${isMobile ? 'w-16' : 'w-24'}`}>
           <Slider
             value={[volume]}
             max={100}
