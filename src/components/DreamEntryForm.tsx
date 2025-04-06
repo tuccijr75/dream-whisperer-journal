@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import { getAIInterpretation } from "@/utils/dreamInterpreter";
 import { generateDreamImage } from "@/utils/dreamImageGenerator";
 import DreamInterpretation from "./DreamInterpretation";
 import DreamImage from "./DreamImage";
+import TagInput from "./TagInput";
 
 interface DreamEntryFormProps {
   onDreamSaved: () => void;
@@ -34,6 +36,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
   const [isInterpreting, setIsInterpreting] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   const dreamMoods: { value: DreamMood; label: string }[] = [
     { value: "happy", label: "Happy" },
@@ -71,6 +74,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       mood,
       type,
       isStarred: false,
+      tags: tags.length > 0 ? tags : undefined,
       interpretation: interpretation || undefined,
       imageUrl: imageUrl || undefined,
     };
@@ -233,6 +237,11 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <TagInput tags={tags} setTags={setTags} placeholder="Add tags (e.g., flying, water, family)..." />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">

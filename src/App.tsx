@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import CalendarView from "./pages/Calendar";
+import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 import { useState } from "react";
 import "./App.css";
@@ -21,6 +23,8 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/calendar" element={<CalendarView />} />
+            <Route path="/statistics" element={<Statistics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

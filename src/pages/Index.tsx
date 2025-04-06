@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import EmptyState from "@/components/EmptyState";
 import DreamEntryForm from "@/components/DreamEntryForm";
 import DreamList from "@/components/DreamList";
+import Navigation from "@/components/Navigation";
 import { getDreams } from "@/utils/dreamStorage";
 import { Dream } from "@/types/dream";
 
@@ -85,6 +86,7 @@ const Index = () => {
         <div className="container py-8 px-4 max-w-6xl relative z-10">
           <div className="flex items-center justify-between">
             <Header />
+            <Navigation />
           </div>
           <main className="pt-4 pb-16">
             {renderContent()}
