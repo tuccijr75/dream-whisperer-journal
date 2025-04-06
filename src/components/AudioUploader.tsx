@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Check, AlertCircle, PlayCircle, PauseCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +21,7 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
   const TEST_AUDIO_ID = 'test-uploaded-audio';
 
   // Check for existing audio in localStorage when component mounts
-  useState(() => {
+  useEffect(() => {
     try {
       const savedAudio = localStorage.getItem('dream-whisperer-user-audio');
       if (savedAudio && savedAudio.startsWith('blob:')) {
@@ -31,109 +31,153 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
     } catch (err) {
       console.warn("Could not retrieve saved audio:", err);
     }
-  });
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check if it's an audio file
-    if (!file.type.startsWith('audio/')) {
+    // Log detailed information about the file for debugging
+    console.log(`Processing audio file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
+    
+    // Check if it's an audio file - handle various iOS file types
+    if (!file.type.startsWith('audio/') && 
+        !file.name.toLowerCase().endsWith('.mp3') && 
+        !file.name.toLowerCase().endsWith('.m4a') &&
+        !file.name.toLowerCase().endsWith('.wav')) {
       toast({
         title: "Invalid file type",
-        description: "Please upload an audio file (MP3, WAV, etc.)",
+        description: "Please upload an audio file (MP3, WAV, M4A, etc.)",
         variant: "destructive",
       });
       return;
     }
 
-    console.log(`Processing audio file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
-    
     setIsUploading(true);
     setFileName(file.name);
     setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
     
-    // Create a local URL for the file
-    const objectUrl = URL.createObjectURL(file);
-    console.log(`Created object URL: ${objectUrl}`);
+    // Create a FileReader to handle the file data
+    const reader = new FileReader();
     
-    // Test if audio can be played
-    try {
-      // Clean up previous test audio if it exists
-      AudioManager.disposeAudio(TEST_AUDIO_ID);
-      
-      // Create test audio and set up error handling
-      const audio = new Audio(objectUrl);
-      
-      // Set up error handling
-      audio.onerror = (e) => {
-        console.error("Error loading uploaded audio file:", e);
+    reader.onload = (e) => {
+      if (!e.target?.result) {
         setIsUploading(false);
         toast({
-          title: "Audio file cannot be played",
-          description: "The file might be corrupted or in an unsupported format.",
+          title: "Error reading file",
+          description: "Failed to read the audio file data",
           variant: "destructive",
         });
-        URL.revokeObjectURL(objectUrl);
-      };
+        return;
+      }
       
-      // Set up success handler
-      audio.oncanplaythrough = () => {
-        // Audio is playable
-        setUploadedFile(objectUrl);
-        setIsUploading(false);
-        
-        if (onAudioUploaded) {
-          onAudioUploaded(objectUrl);
-        }
-        
-        toast({
-          title: "Audio uploaded",
-          description: `${file.name} is now available in your app`,
-        });
-        
-        // Store in localStorage for persistence
-        try {
-          localStorage.setItem('dream-whisperer-user-audio', objectUrl);
-        } catch (err) {
-          console.warn("Could not store audio URL in localStorage", err);
-        }
-      };
+      // Create blob from the file data
+      const blob = new Blob(
+        [e.target.result as ArrayBuffer], 
+        { type: file.type || 'audio/mpeg' }
+      );
       
-      // Force the loading of audio
-      audio.load();
+      // Create object URL from blob
+      const objectUrl = URL.createObjectURL(blob);
+      console.log(`Created object URL: ${objectUrl}`);
       
-      // Set a timeout to handle files that neither succeed nor fail
-      setTimeout(() => {
-        if (isUploading) {
+      // Test if audio can be played
+      try {
+        // Clean up previous test audio if it exists
+        AudioManager.disposeAudio(TEST_AUDIO_ID);
+        
+        // Create test audio and set up error handling
+        const audio = new Audio();
+        
+        // Set up error handling
+        audio.onerror = (e) => {
+          console.error("Error loading uploaded audio file:", e);
           setIsUploading(false);
           toast({
-            title: "Upload complete",
-            description: "Your audio file is now available.",
+            title: "Audio file cannot be played",
+            description: "The file might be corrupted or in an unsupported format.",
+            variant: "destructive",
           });
+          URL.revokeObjectURL(objectUrl);
+        };
+        
+        // Set up success handler
+        audio.oncanplaythrough = () => {
+          // Audio is playable
           setUploadedFile(objectUrl);
+          setIsUploading(false);
           
+          if (onAudioUploaded) {
+            onAudioUploaded(objectUrl);
+          }
+          
+          toast({
+            title: "Audio uploaded",
+            description: `${file.name} is now available in your app`,
+          });
+          
+          // Store in localStorage for persistence
           try {
             localStorage.setItem('dream-whisperer-user-audio', objectUrl);
           } catch (err) {
             console.warn("Could not store audio URL in localStorage", err);
           }
-          
-          if (onAudioUploaded) {
-            onAudioUploaded(objectUrl);
+        };
+        
+        // Set source and load audio
+        audio.src = objectUrl;
+        audio.load();
+        
+        // Set a timeout to handle files that neither succeed nor fail
+        setTimeout(() => {
+          if (isUploading) {
+            setIsUploading(false);
+            toast({
+              title: "Upload complete",
+              description: "Your audio file is now available.",
+            });
+            setUploadedFile(objectUrl);
+            
+            try {
+              localStorage.setItem('dream-whisperer-user-audio', objectUrl);
+            } catch (err) {
+              console.warn("Could not store audio URL in localStorage", err);
+            }
+            
+            if (onAudioUploaded) {
+              onAudioUploaded(objectUrl);
+            }
           }
-        }
-      }, 3000); // 3 second timeout
-      
-    } catch (err) {
-      console.error("Failed to test audio playability:", err);
+        }, 3000); // 3 second timeout
+        
+      } catch (err) {
+        console.error("Failed to test audio playability:", err);
+        setIsUploading(false);
+        toast({
+          title: "Error uploading audio",
+          description: "Could not process the audio file",
+          variant: "destructive",
+        });
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+    
+    reader.onerror = () => {
+      console.error("FileReader error:", reader.error);
       setIsUploading(false);
       toast({
-        title: "Error uploading audio",
-        description: "Could not process the audio file",
+        title: "Error reading file",
+        description: "Failed to read the audio file",
         variant: "destructive",
       });
-      URL.revokeObjectURL(objectUrl);
+    };
+    
+    // Read the file as ArrayBuffer which works better cross-platform
+    reader.readAsArrayBuffer(file);
+    
+    // Reset the input so the same file can be selected again if needed
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -197,9 +241,10 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
         <input
           ref={fileInputRef}
           type="file"
-          accept="audio/*"
+          accept="audio/*,.mp3,.m4a,.wav"
           onChange={handleFileChange}
           className="hidden"
+          capture="user"
         />
         
         {uploadedFile && (
@@ -253,7 +298,7 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
       <div className="text-xs text-muted-foreground">
         <p className="flex items-center">
           <AlertCircle className="mr-1 h-3 w-3" />
-          Supported formats: MP3, WAV, OGG, AAC (max 10MB)
+          Supported formats: MP3, WAV, M4A, OGG, AAC (max 10MB)
         </p>
         <p className="flex items-center mt-1">
           <AlertCircle className="mr-1 h-3 w-3" />
@@ -265,3 +310,4 @@ const AudioUploader = ({ onAudioUploaded }: AudioUploaderProps) => {
 };
 
 export default AudioUploader;
+

@@ -1,3 +1,4 @@
+
 /**
  * Audio Manager utility for consistent audio handling across the app
  */
@@ -58,6 +59,15 @@ class AudioManager {
       if (this.errorListeners.has(id)) {
         this.errorListeners.get(id)?.forEach(listener => listener());
       }
+    });
+    
+    // Handle various iOS-specific behaviors
+    audio.addEventListener('suspend', () => {
+      console.log(`Audio ${id} has been suspended`);
+    });
+    
+    audio.addEventListener('abort', () => {
+      console.log(`Audio ${id} loading aborted`);
     });
     
     // Use absolute path for mobile compatibility
@@ -149,20 +159,40 @@ class AudioManager {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      // This is needed for iOS
-      if (audio.paused) {
-        // Create a user gesture context
-        document.addEventListener('click', function resumeAudio() {
-          document.removeEventListener('click', resumeAudio);
-          audio.play().catch(err => console.error(`Failed to play audio ${id} after user click:`, err));
-        }, { once: true });
+      // Handle iOS specific behavior - needs to be triggered in a user interaction
+      let playPromise: Promise<void>;
+      if (this.isiOS()) {
+        audio.load(); // Force reload on iOS
+        playPromise = new Promise((resolve, reject) => {
+          const playAttempt = audio.play();
+          if (playAttempt) {
+            playAttempt.then(resolve).catch(reject);
+          } else {
+            // Older iOS versions don't return a promise
+            resolve();
+          }
+        });
+      } else {
+        playPromise = audio.play();
       }
       
-      await audio.play();
+      await playPromise;
     } catch (error) {
       console.error(`Error playing audio ${id}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Detect iOS devices
+   */
+  private static isiOS(): boolean {
+    return [
+      'iPad',
+      'iPhone',
+      'iPod'
+    ].includes(navigator.platform) || 
+    (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   }
 
   /**
@@ -221,3 +251,4 @@ class AudioManager {
 }
 
 export default AudioManager;
+
