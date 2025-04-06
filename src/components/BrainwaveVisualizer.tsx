@@ -1,11 +1,14 @@
 
-import React, { useEffect, useRef } from "react";
-import { Brain } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Brain, VolumeX, Volume2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import binauralBeatGenerator, { BrainwaveFrequency } from "@/utils/binauralBeats";
 
 interface BrainwaveVisualizerProps {
   active: boolean;
-  frequency?: "delta" | "theta" | "alpha" | "beta" | "gamma";
+  frequency?: BrainwaveFrequency;
   volume: number;
 }
 
@@ -16,6 +19,8 @@ const BrainwaveVisualizer = ({
 }: BrainwaveVisualizerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [binauralVolume, setBinauralVolume] = useState(20);
   
   const getFrequencySettings = (freq: string) => {
     switch(freq) {
@@ -34,6 +39,25 @@ const BrainwaveVisualizer = ({
     }
   };
   
+  // Handle binaural beats audio
+  useEffect(() => {
+    if (active && soundEnabled) {
+      binauralBeatGenerator.start(frequency, binauralVolume / 100);
+    } else {
+      binauralBeatGenerator.stop();
+    }
+    
+    return () => {
+      binauralBeatGenerator.stop();
+    };
+  }, [active, soundEnabled, frequency, binauralVolume]);
+  
+  // Update binaural volume when it changes
+  useEffect(() => {
+    binauralBeatGenerator.setVolume(binauralVolume / 100);
+  }, [binauralVolume]);
+  
+  // Canvas animation for wave visualization
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -125,13 +149,35 @@ const BrainwaveVisualizer = ({
     };
   }, [active, frequency, volume]);
 
+  const toggleSound = () => {
+    setSoundEnabled(!soundEnabled);
+  };
+
+  const handleVolumeChange = (values: number[]) => {
+    setBinauralVolume(values[0]);
+  };
+
   return (
     <Card className="bg-white/50 backdrop-blur-sm border-dream-light-purple/30">
       <CardContent className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Brain className="text-dream-purple h-5 w-5" />
-          <h4 className="text-sm font-medium text-dream-deep-purple">Neural Brainwaves</h4>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain className="text-dream-purple h-5 w-5" />
+            <h4 className="text-sm font-medium text-dream-deep-purple">Neural Brainwaves</h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSound}
+              className={`h-8 w-8 ${soundEnabled && active ? 'text-dream-purple' : 'text-dream-purple/70'}`}
+              title={soundEnabled ? "Disable binaural beats" : "Enable binaural beats"}
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
+        
         <div className="relative h-24 bg-gray-50/50 rounded-md overflow-hidden">
           <canvas 
             ref={canvasRef} 
@@ -141,6 +187,23 @@ const BrainwaveVisualizer = ({
             {frequency.charAt(0).toUpperCase() + frequency.slice(1)} waves
           </div>
         </div>
+        
+        {soundEnabled && (
+          <div className="pt-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-dream-deep-purple/70">Binaural volume:</span>
+              <Slider
+                value={[binauralVolume]}
+                min={0}
+                max={100}
+                step={1}
+                onValueChange={handleVolumeChange}
+                className="flex-1"
+              />
+              <span className="text-xs w-7 text-right text-dream-deep-purple/70">{binauralVolume}%</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

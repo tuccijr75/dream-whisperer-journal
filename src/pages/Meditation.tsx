@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Moon, Volume2, VolumeX } from "lucide-react";
@@ -7,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
+import { BrainwaveFrequency } from "@/utils/binauralBeats";
+import { toast } from "sonner";
 
 interface MeditationVideo {
   id: string;
@@ -59,13 +60,13 @@ const Meditation = () => {
   const [timeRemaining, setTimeRemaining] = useState(10 * 60); // seconds
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
-  const [brainwaveFrequency, setBrainwaveFrequency] = useState<"delta" | "theta" | "alpha" | "beta" | "gamma">("theta");
+  const [brainwaveFrequency, setBrainwaveFrequency] = useState<BrainwaveFrequency>("theta");
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
 
   const handleSelectVideo = (video: MeditationVideo) => {
     setSelectedVideo(video);
-    toast({
+    uiToast({
       title: "Now Playing",
       description: video.title,
     });
@@ -77,8 +78,13 @@ const Meditation = () => {
 
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio("/ambient-meditation.mp3");
-      audioRef.current.loop = true;
+      try {
+        audioRef.current = new Audio("/ambient-meditation.mp3");
+        audioRef.current.loop = true;
+      } catch (error) {
+        console.error("Error loading ambient sound:", error);
+        toast.error("Could not load ambient sound");
+      }
     }
     
     if (audioRef.current) {
@@ -102,10 +108,18 @@ const Meditation = () => {
       }, 1000);
     } else if (timeRemaining === 0 && timerActive) {
       setTimerActive(false);
-      const notification = new Audio("/ambient-meditation.mp3");
-      notification.play();
       
-      toast({
+      try {
+        const notification = new Audio("/ambient-meditation.mp3");
+        notification.volume = 0.3;
+        notification.play().catch(err => {
+          console.error("Could not play notification sound:", err);
+        });
+      } catch (error) {
+        console.error("Error with notification sound:", error);
+      }
+      
+      uiToast({
         title: "Meditation Complete",
         description: `Your ${timerDuration} minute meditation session is complete.`,
       });
@@ -114,14 +128,17 @@ const Meditation = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timerActive, timeRemaining, timerDuration, toast]);
+  }, [timerActive, timeRemaining, timerDuration, uiToast]);
 
   const toggleTimer = () => {
     if (!timerActive) {
       setTimeRemaining(timerDuration * 60);
       
       if (audioRef.current && !isMuted) {
-        audioRef.current.play();
+        audioRef.current.play().catch(err => {
+          console.error("Could not play ambient sound:", err);
+          toast.error("Could not play sound - try clicking the timer again");
+        });
       }
       
       if (timerDuration <= 5) {
@@ -174,9 +191,9 @@ const Meditation = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handleFrequencyChange = (freq: "delta" | "theta" | "alpha" | "beta" | "gamma") => {
+  const handleFrequencyChange = (freq: BrainwaveFrequency) => {
     setBrainwaveFrequency(freq);
-    toast({
+    uiToast({
       title: `${freq.charAt(0).toUpperCase() + freq.slice(1)} waves activated`,
       description: getFrequencyDescription(freq),
     });
