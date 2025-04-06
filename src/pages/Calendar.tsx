@@ -20,8 +20,8 @@ import { format } from "date-fns";
 import DreamEntryForm from "@/components/DreamEntryForm";
 import DreamList from "@/components/DreamList";
 import DreamTemplates from "@/components/DreamTemplates";
-import DreamReminder from "@/components/DreamReminder";
-import { Calendar as CalendarIcon, Template, AlarmClock } from "lucide-react";
+import DreamReminderComponent from "@/components/DreamReminder";
+import { Calendar as CalendarIcon, FileText, AlarmClock } from "lucide-react";
 
 const CalendarView = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -91,7 +91,7 @@ const CalendarView = () => {
             <span className="hidden sm:inline">Calendar</span>
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
-            <Template className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Templates</span>
           </TabsTrigger>
           <TabsTrigger value="reminders" className="flex items-center gap-2">
@@ -125,7 +125,16 @@ const CalendarView = () => {
                     selected={date}
                     onSelect={setDate}
                     className="rounded-md border border-dream-light-purple/20"
-                    highlightedDays={getDreamDates()}
+                    // Modifiers prop instead of highlightedDays
+                    modifiers={{
+                      highlighted: getDreamDates()
+                    }}
+                    modifiersStyles={{
+                      highlighted: {
+                        backgroundColor: "rgba(147, 51, 234, 0.1)",
+                        borderRadius: "100%"
+                      }
+                    }}
                   />
                 </CardContent>
               </Card>
@@ -154,7 +163,6 @@ const CalendarView = () => {
                     <DreamList
                       dreams={dreamsForDate(date)}
                       onUpdate={loadDreams}
-                      simplified
                     />
                   ) : (
                     <div className="text-center py-8">
@@ -187,7 +195,7 @@ const CalendarView = () => {
         </TabsContent>
 
         <TabsContent value="reminders">
-          <DreamReminder />
+          <DreamReminderComponent />
         </TabsContent>
       </Tabs>
     </div>

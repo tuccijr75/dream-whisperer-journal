@@ -38,3 +38,10 @@ export interface DreamReminder {
   sound: 'gentle' | 'nature' | 'crystal' | 'none';
   volume: number; // 0-100
 }
+
+// Add calendar-related types
+export interface CalendarHighlightedDay {
+  date: Date;
+  color?: string;
+  backgroundColor?: string;
+}

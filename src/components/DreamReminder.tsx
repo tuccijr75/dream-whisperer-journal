@@ -1,10 +1,9 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlarmClock, Plus, Check, X, Volume2, Bell, AlarmClockCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DreamReminder } from "@/types/dream";
+import { type DreamReminder } from "@/types/dream";
 import { getReminders, saveReminder, updateReminder, deleteReminder, toggleReminderStatus } from "@/utils/templateStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import { format } from "date-fns";
 
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const DreamReminder = () => {
+const DreamReminderComponent = () => {
   const { toast } = useToast();
   const [reminders, setReminders] = useState<DreamReminder[]>(getReminders());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -462,4 +461,4 @@ const DreamReminder = () => {
   );
 };
 
-export default DreamReminder;
+export default DreamReminderComponent;

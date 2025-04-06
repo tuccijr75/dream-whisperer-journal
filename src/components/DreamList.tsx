@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
 import DreamCard from "./DreamCard";
@@ -18,9 +17,10 @@ import { DateRange } from "react-day-picker";
 interface DreamListProps {
   dreams: Dream[];
   onUpdate: () => void;
+  simplified?: boolean;
 }
 
-const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
+const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [moodFilter, setMoodFilter] = useState<DreamMood | "all">("all");
   const [typeFilter, setTypeFilter] = useState<DreamType | "all">("all");
@@ -129,6 +129,23 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
   };
 
   const hasActiveFilters = moodFilter !== "all" || typeFilter !== "all" || categoryFilter !== "all" || !!dateRange.from || !!tagFilter;
+
+  // Simplified view for calendar page
+  if (simplified) {
+    return (
+      <div className="space-y-2">
+        {dreams.map(dream => (
+          <div 
+            key={dream.id}
+            className="p-3 bg-white/70 rounded-lg border border-dream-light-purple/20 hover:border-dream-light-purple/40 transition-colors"
+          >
+            <h3 className="font-medium text-dream-purple">{dream.title}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{dream.description}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -263,7 +280,6 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
           </div>
         )}
         
-        {/* Active filters display */}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2">
             {moodFilter !== "all" && (
