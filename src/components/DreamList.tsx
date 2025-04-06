@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
 import DreamCard from "./DreamCard";
@@ -13,7 +14,7 @@ import { format, parseISO, isSameMonth, isAfter, isBefore, isSameDay } from "dat
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DateRange } from "react-day-picker";
-import { SearchSuggestions } from "@/components/SearchSuggestions";
+import SearchSuggestions from "@/components/SearchSuggestions"; // Fixed import
 
 interface DreamListProps {
   dreams: Dream[];
