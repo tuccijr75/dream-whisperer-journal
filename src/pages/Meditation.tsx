@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MeditationVideoCard from "@/components/MeditationVideoCard";
 import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
+import { BrainwaveFrequency } from "@/utils/binauralBeats";
 
 const mediationVideos = [
   {
@@ -46,7 +47,10 @@ const mediationVideos = [
 ];
 
 const Meditation = () => {
-  const [frequency, setFrequency] = useState(7.83); // Default to Schumann resonance
+  // Change from number to BrainwaveFrequency type
+  const [frequency, setFrequency] = useState<BrainwaveFrequency>("theta"); // Default to theta
+  const [volume, setVolume] = useState(50); // Add volume state
+  const [isActive, setIsActive] = useState(true); // Add active state
   
   const handleSelectVideo = (videoId: string) => {
     // Handle video selection logic here
@@ -79,12 +83,16 @@ const Meditation = () => {
                     <CardDescription>Binaural beats to induce different brain states</CardDescription>
                   </div>
                   <Badge variant="outline" className="ml-2 bg-dream-purple/20 text-dream-purple border-dream-purple/50">
-                    {frequency}Hz
+                    {frequency}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <BrainwaveVisualizer frequency={frequency} height={200} />
+                <BrainwaveVisualizer 
+                  active={isActive} 
+                  frequency={frequency} 
+                  volume={volume}
+                />
                 
                 <div className="space-y-4 mt-6">
                   <Separator className="bg-gray-800" />
@@ -92,43 +100,43 @@ const Meditation = () => {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     <Button 
                       variant="outline" 
-                      className={`${frequency === 0.5 ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
-                      onClick={() => setFrequency(0.5)}
+                      className={`${frequency === "delta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      onClick={() => setFrequency("delta")}
                     >
                       Delta<span className="text-xs block text-gray-400">0.5Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === 4 ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
-                      onClick={() => setFrequency(4)}
+                      className={`${frequency === "theta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      onClick={() => setFrequency("theta")}
                     >
                       Theta<span className="text-xs block text-gray-400">4Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === 7.83 ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
-                      onClick={() => setFrequency(7.83)}
+                      className={`${frequency === "alpha" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      onClick={() => setFrequency("alpha")}
                     >
-                      Schumann<span className="text-xs block text-gray-400">7.83Hz</span>
+                      Alpha<span className="text-xs block text-gray-400">8Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === 10 ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
-                      onClick={() => setFrequency(10)}
+                      className={`${frequency === "beta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      onClick={() => setFrequency("beta")}
                     >
-                      Alpha<span className="text-xs block text-gray-400">10Hz</span>
+                      Beta<span className="text-xs block text-gray-400">14Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === 16 ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
-                      onClick={() => setFrequency(16)}
+                      className={`${frequency === "gamma" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      onClick={() => setFrequency("gamma")}
                     >
-                      Beta<span className="text-xs block text-gray-400">16Hz</span>
+                      Gamma<span className="text-xs block text-gray-400">30Hz</span>
                     </Button>
                   </div>
                   
                   <div className="py-3">
-                    <MusicPlayer audioSrc="/ambient-meditation.mp3" frequency={frequency.toString()} />
+                    <MusicPlayer />
                   </div>
                 </div>
               </CardContent>

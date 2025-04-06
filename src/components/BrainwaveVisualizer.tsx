@@ -8,7 +8,7 @@ import binauralBeatGenerator, { BrainwaveFrequency } from "@/utils/binauralBeats
 
 interface BrainwaveVisualizerProps {
   active: boolean;
-  frequency?: BrainwaveFrequency;
+  frequency: BrainwaveFrequency;
   volume: number;
 }
 
@@ -22,7 +22,7 @@ const BrainwaveVisualizer = ({
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [binauralVolume, setBinauralVolume] = useState(20);
   
-  const getFrequencySettings = (freq: string) => {
+  const getFrequencySettings = (freq: BrainwaveFrequency) => {
     switch(freq) {
       case "delta": // 0.5-4 Hz (deep sleep)
         return { waveSpeed: 0.5, waveHeight: 15, color: "#6b21a8" };
