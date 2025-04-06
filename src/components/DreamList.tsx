@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
 import DreamCard from "./DreamCard";
@@ -14,7 +13,7 @@ import { format, parseISO, isSameMonth, isAfter, isBefore, isSameDay } from "dat
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DateRange } from "react-day-picker";
-import SearchSuggestions from "@/components/SearchSuggestions"; // Fixed import
+import SearchSuggestions from "@/components/SearchSuggestions";
 
 interface DreamListProps {
   dreams: Dream[];
@@ -33,7 +32,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [tagFilter, setTagFilter] = useState<string>("");
-  
+
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     dreams.forEach(dream => {
@@ -43,7 +42,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
     });
     return Array.from(tagSet).sort();
   }, [dreams]);
-  
+
   const filteredDreams = useMemo(() => {
     if (!searchQuery.trim() && moodFilter === "all" && typeFilter === "all" && categoryFilter === "all" && !dateRange.from && !tagFilter) {
       return dreams;
@@ -78,7 +77,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
       return matchesSearch && matchesMood && matchesType && matchesCategory && matchesDate && matchesTag;
     });
   }, [dreams, searchQuery, moodFilter, typeFilter, categoryFilter, dateRange, tagFilter]);
-  
+
   const groupedDreams = useMemo(() => {
     const groups: Record<string, Dream[]> = {};
     
@@ -101,7 +100,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
     
     return groups;
   }, [filteredDreams]);
-  
+
   const sortedMonthKeys = useMemo(() => {
     return Object.keys(groupedDreams).sort((a, b) => {
       const dateA = new Date(a);
@@ -109,7 +108,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
       return dateB.getTime() - dateA.getTime();
     });
   }, [groupedDreams]);
-  
+
   const resetFilters = () => {
     setMoodFilter("all");
     setTypeFilter("all");
@@ -254,7 +253,7 @@ const DreamList = ({ dreams, onUpdate, simplified = false }: DreamListProps) => 
                   <SelectValue placeholder="Filter by tag" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Tags</SelectItem>
+                  <SelectItem value="all">All Tags</SelectItem>
                   {allTags.map(tag => (
                     <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                   ))}
