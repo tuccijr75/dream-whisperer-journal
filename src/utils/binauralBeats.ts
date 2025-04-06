@@ -4,6 +4,8 @@
  * that correspond to different brainwave states
  */
 
+import AudioManager from "./audioManager";
+
 export type BrainwaveFrequency = "delta" | "theta" | "alpha" | "beta" | "gamma";
 
 // Frequency ranges in Hz for each brainwave type
@@ -29,7 +31,10 @@ class BinauralBeatGenerator {
 
   private initialize() {
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Try to initialize only when needed (requires user interaction)
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
     } catch (error) {
       console.error("Web Audio API not supported in this browser", error);
     }
@@ -41,16 +46,19 @@ class BinauralBeatGenerator {
       this.stop();
     }
 
-    if (!this.audioContext) {
-      this.initialize();
-    }
-
-    if (!this.audioContext) {
-      console.error("Audio context could not be initialized");
-      return;
-    }
-
     try {
+      // Initialize or resume audio context 
+      if (!this.audioContext) {
+        this.initialize();
+      } else if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+
+      if (!this.audioContext) {
+        console.error("Audio context could not be initialized");
+        return false;
+      }
+      
       // Create audio nodes
       this.leftOscillator = this.audioContext.createOscillator();
       this.rightOscillator = this.audioContext.createOscillator();

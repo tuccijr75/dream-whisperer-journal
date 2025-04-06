@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { formatTime } from "@/utils/formatTime";
+import AudioManager from "@/utils/audioManager";
+import { toast } from "sonner";
 
 interface MeditationPlayerProps {
   audioSrc: string;
@@ -17,64 +19,86 @@ const MeditationPlayer = ({ audioSrc, title, autoPlay = false }: MeditationPlaye
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(70);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioId = useRef(`meditation-${title.replace(/\s+/g, '-').toLowerCase()}`);
+  const updateIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(audioSrc);
-    audioRef.current = audio;
+    // Initialize audio
+    const audio = AudioManager.getAudio(audioId.current, audioSrc, {
+      volume: volume / 100,
+      loop: false
+    });
     
     // Set up event listeners
-    audio.addEventListener("loadedmetadata", () => {
+    const handleMetadata = () => {
       setDuration(audio.duration);
-    });
+    };
     
-    audio.addEventListener("timeupdate", () => {
-      setCurrentTime(audio.currentTime);
-    });
-    
-    audio.addEventListener("ended", () => {
+    const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
-    });
+      clearUpdateInterval();
+    };
     
-    // Set initial volume
-    audio.volume = volume / 100;
+    if (isNaN(audio.duration)) {
+      audio.addEventListener("loadedmetadata", handleMetadata);
+    } else {
+      setDuration(audio.duration);
+    }
     
-    // Autoplay if enabled
+    audio.addEventListener("ended", handleEnded);
+    
+    // Autoplay if enabled (will likely fail without user interaction)
     if (autoPlay) {
       playAudio();
     }
     
-    // Cleanup
+    // Clean up event listeners
     return () => {
-      audio.pause();
-      audio.src = "";
-      audio.removeEventListener("loadedmetadata", () => {});
-      audio.removeEventListener("timeupdate", () => {});
-      audio.removeEventListener("ended", () => {});
+      audio.removeEventListener("loadedmetadata", handleMetadata);
+      audio.removeEventListener("ended", handleEnded);
+      clearUpdateInterval();
     };
   }, [audioSrc, autoPlay]);
   
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
+    AudioManager.setVolume(audioId.current, volume / 100);
   }, [volume]);
 
-  const playAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(err => {
-        console.error("Error playing audio:", err);
-      });
-      setIsPlaying(true);
+  // Start time update interval when playing
+  const startUpdateInterval = () => {
+    if (updateIntervalRef.current) return;
+    
+    updateIntervalRef.current = window.setInterval(() => {
+      const audio = AudioManager.getAudio(audioId.current, audioSrc);
+      setCurrentTime(audio.currentTime);
+    }, 100);
+  };
+  
+  // Clear time update interval when paused
+  const clearUpdateInterval = () => {
+    if (updateIntervalRef.current) {
+      window.clearInterval(updateIntervalRef.current);
+      updateIntervalRef.current = null;
     }
   };
 
+  const playAudio = () => {
+    AudioManager.playAudio(audioId.current).then(() => {
+      setIsPlaying(true);
+      startUpdateInterval();
+    }).catch(err => {
+      console.error("Error playing audio:", err);
+      toast.error("Could not play meditation audio", {
+        description: "Try interacting with the page first"
+      });
+    });
+  };
+
   const pauseAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
+    AudioManager.pauseAudio(audioId.current);
+    setIsPlaying(false);
+    clearUpdateInterval();
   };
 
   const togglePlayPause = () => {
@@ -86,21 +110,19 @@ const MeditationPlayer = ({ audioSrc, title, autoPlay = false }: MeditationPlaye
   };
 
   const restartAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      setCurrentTime(0);
-      if (!isPlaying) {
-        playAudio();
-      }
+    const audio = AudioManager.getAudio(audioId.current, audioSrc);
+    audio.currentTime = 0;
+    setCurrentTime(0);
+    if (!isPlaying) {
+      playAudio();
     }
   };
 
   const handleTimeChange = (values: number[]) => {
     const newTime = values[0];
     setCurrentTime(newTime);
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-    }
+    const audio = AudioManager.getAudio(audioId.current, audioSrc);
+    audio.currentTime = newTime;
   };
 
   const handleVolumeChange = (values: number[]) => {
@@ -118,7 +140,7 @@ const MeditationPlayer = ({ audioSrc, title, autoPlay = false }: MeditationPlaye
           </span>
           <Slider
             value={[currentTime]}
-            max={duration}
+            max={duration || 100}
             step={0.1}
             className="mx-2 flex-1"
             onValueChange={handleTimeChange}

@@ -10,35 +10,54 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Use an absolute path for mobile apps
-    const audioPath = window.location.origin + "/ambient-meditation.mp3";
-    
-    // Create audio element
-    audioRef.current = new Audio(audioPath);
-    audioRef.current.loop = true;
-    audioRef.current.volume = volume / 100;
-    
-    // iOS requires user interaction to play audio
-    if (audioRef.current) {
-      audioRef.current.preload = "auto";
+    // Create audio element dynamically
+    if (!audioRef.current) {
+      // Create a visible audio element in the DOM for more consistent behavior
+      const audio = document.createElement('audio');
+      audio.id = 'ambient-music-player';
+      audio.preload = 'auto';
+      audio.loop = true;
+      audio.style.display = 'none';
+      
+      // Use an absolute path for mobile apps
+      audio.src = window.location.origin + "/ambient-meditation.mp3";
+      
+      // Add error handling
+      audio.addEventListener('error', (e) => {
+        console.error('Audio loading error:', e);
+        setAudioError(true);
+        toast.error("Could not load meditation audio", {
+          description: "Please check that the audio file exists"
+        });
+      });
+      
+      // Add to document to ensure iOS compatibility
+      document.body.appendChild(audio);
+      audioRef.current = audio;
+      
+      // Set initial volume
+      audio.volume = volume / 100;
     }
-
+    
     // Cleanup on unmount
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        if (document.getElementById('ambient-music-player')) {
+          document.getElementById('ambient-music-player')?.remove();
+        }
         audioRef.current = null;
       }
     };
   }, []);
 
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || audioError) return;
     
     if (isPlaying) {
       const playPromise = audioRef.current.play();
@@ -47,21 +66,21 @@ const MusicPlayer = () => {
         playPromise.catch(err => {
           console.error("Failed to play audio:", err);
           setIsPlaying(false);
-          setAutoplayBlocked(true);
+          
+          // Show helpful toast for user interaction requirement
           toast.info("Click the sound icon to start ambient music", {
             duration: 5000
           });
         }).then(() => {
           if (playPromise) {
             setIsAudioInitialized(true);
-            setAutoplayBlocked(false);
           }
         });
       }
-    } else {
+    } else if (audioRef.current) {
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, audioError]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -70,6 +89,13 @@ const MusicPlayer = () => {
   }, [volume]);
 
   const togglePlay = () => {
+    if (audioError) {
+      // Attempt to reload the audio
+      if (audioRef.current) {
+        audioRef.current.load();
+        setAudioError(false);
+      }
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -85,12 +111,7 @@ const MusicPlayer = () => {
         {isPlaying ? (
           <Volume2 className="h-5 w-5 text-dream-purple" />
         ) : (
-          <>
-            {autoplayBlocked && (
-              <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse" />
-            )}
-            <VolumeX className="h-5 w-5 text-dream-purple/70" />
-          </>
+          <VolumeX className="h-5 w-5 text-dream-purple/70" />
         )}
       </Button>
       {(isPlaying || isAudioInitialized) && (
