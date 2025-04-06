@@ -1,100 +1,90 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Volume2, VolumeX, Play } from "lucide-react";
+import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
+import AudioManager from "@/utils/audioManager";
+
+const AUDIO_ID = 'ambient-music-player';
+const AUDIO_SRC = '/ambient-meditation.mp3';
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [audioError, setAudioError] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioInitializedRef = useRef(false);
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Create audio element dynamically
-    if (!audioRef.current) {
-      // Create a visible audio element in the DOM for more consistent behavior
-      const audio = document.createElement('audio');
-      audio.id = 'ambient-music-player';
-      audio.preload = 'auto';
-      audio.loop = true;
-      audio.style.display = 'none';
+    // Initialize audio with AudioManager
+    if (!audioInitializedRef.current) {
+      const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+        loop: true,
+        volume: volume / 100
+      });
       
-      // Use an absolute path for mobile apps
-      audio.src = window.location.origin + "/ambient-meditation.mp3";
-      
-      // Add error handling
-      audio.addEventListener('error', (e) => {
-        console.error('Audio loading error:', e);
+      // Set up error handling
+      AudioManager.onError(AUDIO_ID, () => {
         setAudioError(true);
         toast.error("Could not load meditation audio", {
-          description: "Please check that the audio file exists"
+          description: "Please check that the audio file exists in the public folder"
         });
       });
       
-      // Add to document to ensure iOS compatibility
-      document.body.appendChild(audio);
-      audioRef.current = audio;
-      
-      // Set initial volume
-      audio.volume = volume / 100;
+      audioInitializedRef.current = true;
     }
     
     // Cleanup on unmount
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        if (document.getElementById('ambient-music-player')) {
-          document.getElementById('ambient-music-player')?.remove();
-        }
-        audioRef.current = null;
+      if (isPlaying) {
+        AudioManager.pauseAudio(AUDIO_ID);
       }
+      AudioManager.disposeAudio(AUDIO_ID);
     };
   }, []);
 
   useEffect(() => {
-    if (!audioRef.current || audioError) return;
+    if (audioError) return;
     
     if (isPlaying) {
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(err => {
-          console.error("Failed to play audio:", err);
-          setIsPlaying(false);
-          
-          // Show helpful toast for user interaction requirement
-          toast.info("Click the sound icon to start ambient music", {
-            duration: 5000
-          });
-        }).then(() => {
-          if (playPromise) {
-            setIsAudioInitialized(true);
-          }
+      AudioManager.playAudio(AUDIO_ID).then(() => {
+        setIsAudioInitialized(true);
+      }).catch(err => {
+        console.error("Failed to play audio:", err);
+        setIsPlaying(false);
+        
+        // Show helpful toast for user interaction requirement
+        toast.info("Click the sound icon to start ambient music", {
+          duration: 5000
         });
-      }
-    } else if (audioRef.current) {
-      audioRef.current.pause();
+      });
+    } else {
+      AudioManager.pauseAudio(AUDIO_ID);
     }
   }, [isPlaying, audioError]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
+    AudioManager.setVolume(AUDIO_ID, volume / 100);
   }, [volume]);
 
   const togglePlay = () => {
     if (audioError) {
       // Attempt to reload the audio
-      if (audioRef.current) {
-        audioRef.current.load();
-        setAudioError(false);
-      }
+      audioInitializedRef.current = false;
+      setAudioError(false);
+      
+      // Initialize audio again
+      const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+        loop: true,
+        volume: volume / 100
+      });
+      
+      toast.info("Trying to reload ambient music", {
+        duration: 3000
+      });
     }
     setIsPlaying(!isPlaying);
   };

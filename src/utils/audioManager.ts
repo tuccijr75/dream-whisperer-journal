@@ -1,3 +1,4 @@
+
 /**
  * Audio Manager utility for consistent audio handling across the app
  */
@@ -6,10 +7,12 @@ interface AudioOptions {
   volume?: number;
   loop?: boolean;
   autoplay?: boolean;
+  fallbackMessage?: string;
 }
 
 class AudioManager {
   private static audioElements: Map<string, HTMLAudioElement> = new Map();
+  private static errorListeners: Map<string, (() => void)[]> = new Map();
 
   /**
    * Creates or returns an existing audio element
@@ -25,6 +28,15 @@ class AudioManager {
     audio.id = id;
     audio.preload = 'auto';
     audio.loop = options.loop ?? false;
+    
+    // Add error handler to track loading issues
+    audio.addEventListener('error', (e) => {
+      console.error(`Error loading audio ${id} from ${src}:`, e);
+      // Notify all error listeners
+      if (this.errorListeners.has(id)) {
+        this.errorListeners.get(id)?.forEach(listener => listener());
+      }
+    });
     
     // Use absolute path for mobile compatibility
     if (src.startsWith('/')) {
@@ -54,6 +66,22 @@ class AudioManager {
   }
 
   /**
+   * Add an error listener for an audio element
+   */
+  public static onError(id: string, callback: () => void): void {
+    if (!this.errorListeners.has(id)) {
+      this.errorListeners.set(id, []);
+    }
+    this.errorListeners.get(id)?.push(callback);
+
+    // If the audio already exists and has an error, trigger immediately
+    const audio = this.audioElements.get(id);
+    if (audio && audio.error) {
+      callback();
+    }
+  }
+
+  /**
    * Play audio with error handling
    */
   public static async playAudio(id: string): Promise<void> {
@@ -61,6 +89,12 @@ class AudioManager {
     if (!audio) return;
     
     try {
+      // Reset src if previous error
+      if (audio.error) {
+        const originalSrc = audio.src;
+        audio.src = originalSrc;
+      }
+      
       await audio.play();
     } catch (error) {
       console.error(`Error playing audio ${id}:`, error);
@@ -89,6 +123,14 @@ class AudioManager {
   }
 
   /**
+   * Check if audio has an error
+   */
+  public static hasError(id: string): boolean {
+    const audio = this.audioElements.get(id);
+    return audio ? audio.error !== null : false;
+  }
+
+  /**
    * Clean up audio element
    */
   public static disposeAudio(id: string): void {
@@ -98,6 +140,8 @@ class AudioManager {
       audio.remove();
       this.audioElements.delete(id);
     }
+    // Clear any error listeners
+    this.errorListeners.delete(id);
   }
 
   /**
@@ -109,6 +153,7 @@ class AudioManager {
       audio.remove();
     });
     this.audioElements.clear();
+    this.errorListeners.clear();
   }
 }
 
