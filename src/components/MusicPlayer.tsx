@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true); // Set to true by default
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -22,6 +22,26 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.preload = "auto";
     }
+
+    // Attempt to autoplay when component mounts
+    const attemptAutoplay = async () => {
+      try {
+        if (audioRef.current) {
+          // Need to call play within a user gesture event for mobile browsers
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            setIsAudioInitialized(true);
+            console.log("Autoplay successful");
+          }
+        }
+      } catch (error) {
+        console.warn("Autoplay failed:", error);
+        setIsPlaying(false); // Reset to false if autoplay fails
+      }
+    };
+    
+    attemptAutoplay();
 
     // Cleanup on unmount
     return () => {
@@ -43,7 +63,9 @@ const MusicPlayer = () => {
           console.error("Failed to play audio:", err);
           setIsPlaying(false);
         }).then(() => {
-          setIsAudioInitialized(true);
+          if (playPromise) {
+            setIsAudioInitialized(true);
+          }
         });
       }
     } else {
@@ -76,7 +98,7 @@ const MusicPlayer = () => {
           <VolumeX className="h-5 w-5 text-dream-purple/70" />
         )}
       </Button>
-      {isPlaying && (
+      {(isPlaying || isAudioInitialized) && (
         <div className={`${isMobile ? 'w-16' : 'w-24'}`}>
           <Slider
             value={[volume]}
