@@ -119,3 +119,39 @@ html, body {
 .dream-text {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+
+/* Twinkle animation for stars */
+@keyframes twinkle {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.animate-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+/* Meditation video hover effects */
+.meditation-video:hover .play-button {
+  opacity: 1;
+}
+
+.play-button {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Dream gradient */
+.bg-dream-gradient {
+  background: linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%);
+}
