@@ -12,4 +12,5 @@ export interface Dream {
   type: DreamType;
   isStarred?: boolean;
   tags?: string[];
+  interpretation?: string;
 }

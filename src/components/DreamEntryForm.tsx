@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dream, DreamMood, DreamType } from "@/types/dream";
 import { saveDream } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, CalendarIcon, Moon, Star } from "lucide-react";
+import { Brain, Calendar, CalendarIcon, Loader2, Moon, Star } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { getAIInterpretation } from "@/utils/dreamInterpreter";
+import DreamInterpretation from "./DreamInterpretation";
 
 interface DreamEntryFormProps {
   onDreamSaved: () => void;
@@ -27,6 +29,8 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
   const [mood, setMood] = useState<DreamMood>("peaceful");
   const [type, setType] = useState<DreamType>("normal");
   const [date, setDate] = useState<Date>(new Date());
+  const [interpretation, setInterpretation] = useState<string>("");
+  const [isInterpreting, setIsInterpreting] = useState(false);
 
   const dreamMoods: { value: DreamMood; label: string }[] = [
     { value: "happy", label: "Happy" },
@@ -64,6 +68,7 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       mood,
       type,
       isStarred: false,
+      interpretation: interpretation || undefined,
     };
 
     saveDream(newDream);
@@ -72,6 +77,36 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
       description: "Your dream has been recorded successfully",
     });
     onDreamSaved();
+  };
+
+  const handleInterpretDream = async () => {
+    if (!description.trim()) {
+      toast({
+        title: "Cannot interpret",
+        description: "Please enter a dream description first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsInterpreting(true);
+    
+    try {
+      const result = await getAIInterpretation({ description, type });
+      setInterpretation(result);
+      toast({
+        title: "Dream interpreted",
+        description: "Your dream has been analyzed",
+      });
+    } catch (error) {
+      toast({
+        title: "Interpretation failed",
+        description: "Could not interpret your dream. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsInterpreting(false);
+    }
   };
 
   return (
@@ -165,6 +200,34 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
               </Select>
             </div>
           </div>
+
+          <div className="pt-2">
+            <Button 
+              type="button" 
+              onClick={handleInterpretDream}
+              disabled={isInterpreting || !description.trim()}
+              variant="outline"
+              className="w-full border-dream-light-purple/30 hover:bg-dream-purple/10"
+            >
+              {isInterpreting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Interpreting...
+                </>
+              ) : (
+                <>
+                  <Brain className="mr-2 h-4 w-4" />
+                  Interpret Dream
+                </>
+              )}
+            </Button>
+          </div>
+
+          {interpretation && (
+            <div className="pt-2">
+              <DreamInterpretation interpretation={interpretation} />
+            </div>
+          )}
         </CardContent>
 
         <CardFooter className="flex justify-between">
