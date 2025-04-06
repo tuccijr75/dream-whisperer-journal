@@ -19,18 +19,24 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     if (!savedTheme) {
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
-    return savedTheme;
+    return savedTheme === "dark" ? "dark" : "light"; // Ensure valid theme value
   });
 
   useEffect(() => {
     // Update localStorage and document class when theme changes
     localStorage.setItem("theme", theme);
     
+    // Apply the theme to the HTML element
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
     } else {
+      document.documentElement.classList.add("light");
       document.documentElement.classList.remove("dark");
     }
+
+    // Log theme change for debugging
+    console.log("Theme changed to:", theme);
   }, [theme]);
 
   const toggleTheme = () => {

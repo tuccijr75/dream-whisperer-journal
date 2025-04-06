@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -16,6 +16,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, For
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -26,12 +27,18 @@ type EmailFormValues = z.infer<typeof emailSchema>;
 const Settings = () => {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, toggleTheme } = useTheme();
+  const [darkMode, setDarkMode] = useState(theme === "dark");
   const [enableNotifications, setEnableNotifications] = useState(true);
   const [enableSoundEffects, setEnableSoundEffects] = useState(true);
   const [subscribeToNewsletter, setSubscribeToNewsletter] = useState(false);
   const navigate = useNavigate();
   const dreams = getDreams();
+
+  // Sync the theme toggle with the actual theme
+  useEffect(() => {
+    setDarkMode(theme === "dark");
+  }, [theme]);
 
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
@@ -46,6 +53,11 @@ const Settings = () => {
       description: `You've been subscribed with ${data.email}`,
     });
     form.reset();
+  };
+
+  const handleThemeChange = (checked: boolean) => {
+    setDarkMode(checked);
+    toggleTheme();
   };
 
   const handleResetOnboarding = () => {
@@ -151,7 +163,7 @@ const Settings = () => {
                 </div>
                 <Switch
                   checked={darkMode}
-                  onCheckedChange={setDarkMode}
+                  onCheckedChange={handleThemeChange}
                 />
               </div>
             </CardContent>
