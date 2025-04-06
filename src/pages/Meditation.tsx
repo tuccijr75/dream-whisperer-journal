@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -258,7 +257,7 @@ const Meditation = () => {
           
           <TabsContent value="videos" className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-              {mediationVideos.map((video) => (
+              {meditationVideos.map((video) => (
                 <MeditationVideoCard 
                   key={video.id} 
                   video={video} 
