@@ -20,7 +20,20 @@ class AudioManager {
   public static getAudio(id: string, src: string, options: AudioOptions = {}): HTMLAudioElement {
     // If the audio element already exists, return it
     if (this.audioElements.has(id)) {
-      return this.audioElements.get(id) as HTMLAudioElement;
+      const existingAudio = this.audioElements.get(id) as HTMLAudioElement;
+      
+      // If we're requesting with a new source, update it
+      if (existingAudio.src !== src) {
+        console.log(`Updating audio ${id} source to ${src}`);
+        existingAudio.src = src;
+        
+        // Re-apply volume setting
+        if (options.volume !== undefined) {
+          existingAudio.volume = Math.max(0, Math.min(1, options.volume));
+        }
+      }
+      
+      return existingAudio;
     }
 
     // Create a new audio element
@@ -32,12 +45,14 @@ class AudioManager {
     // Add error handler to track loading issues
     audio.addEventListener('error', (e) => {
       console.error(`Error loading audio ${id} from ${src}:`, e);
+      
       // Check if the audio file might be missing
       this.checkAudioFileExists(src).then(exists => {
         if (!exists) {
           console.error(`Audio file ${src} does not exist or is inaccessible`);
         }
       });
+      
       // Notify all error listeners
       if (this.errorListeners.has(id)) {
         this.errorListeners.get(id)?.forEach(listener => listener());
@@ -74,11 +89,13 @@ class AudioManager {
 
   /**
    * Checks if an audio file exists by making a HEAD request
+   * This helps diagnose if the issue is file availability
    */
   private static async checkAudioFileExists(src: string): Promise<boolean> {
     try {
       const fullUrl = src.startsWith('/') ? window.location.origin + src : src;
       const response = await fetch(fullUrl, { method: 'HEAD' });
+      console.log(`Audio file existence check: ${fullUrl} - Status: ${response.status}`);
       return response.ok;
     } catch (error) {
       console.error('Error checking if audio file exists:', error);
@@ -114,6 +131,8 @@ class AudioManager {
       if (audio.error) {
         const originalSrc = audio.src;
         audio.src = originalSrc;
+        // Allow a moment for the browser to process the new source
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       
       // This is needed for iOS
@@ -121,7 +140,7 @@ class AudioManager {
         // Create a user gesture context
         document.addEventListener('click', function resumeAudio() {
           document.removeEventListener('click', resumeAudio);
-          audio.play();
+          audio.play().catch(err => console.error(`Failed to play audio ${id} after user click:`, err));
         }, { once: true });
       }
       

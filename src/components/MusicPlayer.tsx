@@ -7,10 +7,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import AudioManager from "@/utils/audioManager";
 
-// Defining a static sound URL instead of trying to load from files
-// that might not exist or be accessible
+// Using multiple reliable external audio sources for better fallback options
 const AUDIO_ID = 'ambient-music-player';
-const DEFAULT_AUDIO_URL = 'https://cdn.pixabay.com/download/audio/2022/03/09/audio_c8c3ac25b9.mp3?filename=calm-river-ambience-loop-125071.mp3';
+const AUDIO_SOURCES = [
+  'https://cdn.pixabay.com/download/audio/2022/03/09/audio_c8c3ac25b9.mp3?filename=calm-river-ambience-loop-125071.mp3',
+  'https://cdn.pixabay.com/download/audio/2022/01/18/audio_ea75c4af44.mp3?filename=forest-with-small-river-birds-and-nature-field-recording-08-40-14023.mp3',
+  'https://cdn.pixabay.com/download/audio/2021/08/09/audio_ffcf9c1368.mp3?filename=gentle-ocean-waves-breaking-on-beach-relaxation-sounds-ambient-noise-18278.mp3'
+];
 
 const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,42 +22,75 @@ const MusicPlayer = () => {
   const [audioError, setAudioError] = useState(false);
   const audioInitializedRef = useRef(false);
   const audioLoadAttemptedRef = useRef(false);
+  const currentSourceIndexRef = useRef(0);
   const isMobile = useIsMobile();
   
-  useEffect(() => {
-    // Initialize audio with AudioManager and a reliable external URL
-    if (!audioInitializedRef.current) {
-      try {
-        const audio = AudioManager.getAudio(AUDIO_ID, DEFAULT_AUDIO_URL, {
-          loop: true,
-          volume: volume / 100
-        });
-        
-        // Set up error handling
-        AudioManager.onError(AUDIO_ID, () => {
-          console.error("Error loading ambient meditation audio");
-          setAudioError(true);
-          if (!audioLoadAttemptedRef.current) {
-            toast.error("Could not load ambient audio", {
-              description: "Trying to use fallback audio source"
-            });
-            audioLoadAttemptedRef.current = true;
-          }
-        });
-        
-        // Set up handling for successful load
-        audio.addEventListener('canplaythrough', () => {
-          setAudioError(false);
-          setIsAudioInitialized(true);
-          console.log("Audio loaded successfully");
-        });
-        
-        audioInitializedRef.current = true;
-      } catch (err) {
-        console.error("Failed to initialize audio:", err);
+  const tryNextAudioSource = () => {
+    // Try the next audio source in our list
+    currentSourceIndexRef.current = (currentSourceIndexRef.current + 1) % AUDIO_SOURCES.length;
+    const nextSource = AUDIO_SOURCES[currentSourceIndexRef.current];
+    
+    console.log(`Trying next audio source: ${nextSource}`);
+    
+    // Reset initialization flags
+    audioInitializedRef.current = false;
+    audioLoadAttemptedRef.current = false;
+    
+    // Clean up previous audio element
+    AudioManager.disposeAudio(AUDIO_ID);
+    
+    // Initialize with new source
+    initializeAudio(nextSource);
+    
+    toast.info("Trying alternative audio source", {
+      description: "Please wait while we connect to a different audio server"
+    });
+  };
+  
+  const initializeAudio = (audioSource) => {
+    if (audioInitializedRef.current) return;
+    
+    try {
+      console.log(`Initializing audio with source: ${audioSource}`);
+      const audio = AudioManager.getAudio(AUDIO_ID, audioSource, {
+        loop: true,
+        volume: volume / 100
+      });
+      
+      // Set up error handling
+      AudioManager.onError(AUDIO_ID, () => {
+        console.error("Error loading ambient meditation audio");
         setAudioError(true);
-      }
+        
+        if (!audioLoadAttemptedRef.current) {
+          toast.error("Could not load ambient audio", {
+            description: "Trying alternative audio source",
+            action: {
+              label: "Try Again",
+              onClick: tryNextAudioSource
+            }
+          });
+          audioLoadAttemptedRef.current = true;
+        }
+      });
+      
+      // Set up handling for successful load
+      audio.addEventListener('canplaythrough', () => {
+        setAudioError(false);
+        setIsAudioInitialized(true);
+        console.log("Audio loaded successfully");
+      });
+      
+      audioInitializedRef.current = true;
+    } catch (err) {
+      console.error("Failed to initialize audio:", err);
+      setAudioError(true);
     }
+  };
+
+  useEffect(() => {
+    // Initialize audio with first source on component mount
+    initializeAudio(AUDIO_SOURCES[currentSourceIndexRef.current]);
     
     // Cleanup on unmount
     return () => {
@@ -77,6 +113,7 @@ const MusicPlayer = () => {
         
         // Show helpful toast for user interaction requirement
         toast.info("Click the sound icon to start ambient music", {
+          description: "Browser security requires user interaction to play audio",
           duration: 5000
         });
       });
@@ -91,25 +128,10 @@ const MusicPlayer = () => {
 
   const togglePlay = () => {
     if (audioError) {
-      // Attempt to reload the audio with fallback URL
-      audioInitializedRef.current = false;
-      setAudioError(false);
-      
-      // Initialize audio again with fallback URL
-      try {
-        const audio = AudioManager.getAudio(AUDIO_ID, DEFAULT_AUDIO_URL, {
-          loop: true,
-          volume: volume / 100
-        });
-        
-        toast.info("Trying to reload ambient music", {
-          duration: 3000
-        });
-      } catch (err) {
-        console.error("Failed to reload audio:", err);
-        setAudioError(true);
-        return;
-      }
+      // Try the next audio source
+      tryNextAudioSource();
+      setIsPlaying(true);
+      return;
     }
     setIsPlaying(!isPlaying);
   };
