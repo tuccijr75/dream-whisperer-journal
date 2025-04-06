@@ -70,6 +70,7 @@ textarea {
 /* Fix for iOS momentum scrolling */
 html, body {
   -webkit-overflow-scrolling: touch;
+  background-color: #121d42; /* Dark background as fallback */
 }
 
 /* Prevent element highlighting on tap */
@@ -77,21 +78,22 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* New dreamy background styles with the uploaded image */
+/* Background styles with the uploaded image */
 .background-pattern {
   background-image: url("/lovable-uploads/c645d42c-914d-4607-b414-6628af86007b.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position: fixed; /* Keep this fixed */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Place it behind content */
+  z-index: -1;
+  opacity: 1;
 }
 
-/* Adjust background overlay to work better with the new image */
+/* Background overlay to improve contrast */
 .background-pattern::before {
   content: "";
   position: absolute;
@@ -99,7 +101,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 10% 20%, rgba(18, 25, 51, 0.2) 0%, rgba(18, 25, 51, 0.1) 80%);
+  background: radial-gradient(circle at 10% 20%, rgba(18, 25, 51, 0.6) 0%, rgba(18, 25, 51, 0.8) 80%);
 }
 
 /* Floating animation for dream-like elements */
@@ -117,4 +119,3 @@ html, body {
 .dream-text {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-

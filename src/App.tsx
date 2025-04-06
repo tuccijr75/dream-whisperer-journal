@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { useState } from "react";
+import "./App.css";
 
 const App = () => {
   // Create the query client inside the component with useState to ensure it's stable
