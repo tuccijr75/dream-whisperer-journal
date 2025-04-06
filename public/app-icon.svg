@@ -1,14 +1,5 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
   <rect width="512" height="512" rx="128" fill="#121d42"/>
-  <circle cx="256" cy="256" r="176" fill="#121d42"/>
-  <circle cx="256" cy="256" r="112" fill="#1a2952"/>
-  <circle cx="256" cy="256" r="80" fill="#1a2952"/>
-  <path d="M152 128l12 12M344 152l12 12M192 80l8 16M304 88l-8 16M400 200l-16 8" stroke="#f0e6cf" stroke-width="8"/>
-  <path d="M360 280c-13.336-21.336-43.2-57.6-72-48M152 224c0-26.664 20.8-80 72-80" stroke="#f0e6cf" stroke-width="8" stroke-linecap="round"/>
-  <path d="M304 320c-32 16-52 24-96 0M208 144c44-24 68-24 96 0" stroke="#f0e6cf" stroke-width="8" stroke-linecap="round"/>
-  <path d="M384 240c-51.2 83.2-204.8 83.2-256 0 51.2-83.2 204.8-83.2 256 0z" fill="#f0e6cf"/>
-  <path d="M240 416l6 6M276 404l6 6M260 384l4 8M300 388l-4 8" stroke="#f0e6cf" stroke-width="3"/>
-  <path d="M170 136l6 6M206 124l6 6M190 104l4 8M230 108l-4 8" stroke="#f0e6cf" stroke-width="3"/>
-  <path d="M350 146l6 6M386 134l6 6M370 114l4 8M410 118l-4 8" stroke="#f0e6cf" stroke-width="3"/>
+  <image href="/lovable-uploads/c645d42c-914d-4607-b414-6628af86007b.png" width="512" height="512" preserveAspectRatio="xMidYMid slice" />
 </svg>
