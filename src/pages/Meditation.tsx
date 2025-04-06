@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -54,7 +55,7 @@ const guidedMeditations = [
     title: "Lucid Dream Induction",
     description: "Train your mind to recognize when you're dreaming",
     duration: "15 minutes",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_ea75c4af44.mp3?filename=forest-with-small-river-birds-and-nature-field-recording-08-40-14023.mp3",
+    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3",
     technique: "MILD (Mnemonic Induction of Lucid Dreams)",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -63,7 +64,7 @@ const guidedMeditations = [
     title: "Dream Recall Enhancement",
     description: "Improve your ability to remember dreams",
     duration: "12 minutes",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2021/08/09/audio_ffcf9c1368.mp3?filename=gentle-ocean-waves-breaking-on-beach-relaxation-sounds-ambient-noise-18278.mp3",
+    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-relaxing-in-nature-522.mp3",
     technique: "Memory Association",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -72,7 +73,7 @@ const guidedMeditations = [
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
     duration: "20 minutes",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2021/04/08/audio_cb1714b7ea.mp3?filename=crystal-bowls-healing-sound-bath-10691.mp3",
+    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-spirit-rising-2.mp3",
     technique: "WBTB",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -81,7 +82,7 @@ const guidedMeditations = [
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
     duration: "10 minutes",
-    audioSrc: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c1c4d42448.mp3?filename=calm-river-ambience-loop-3-125093.mp3",
+    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3",
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg"
   }

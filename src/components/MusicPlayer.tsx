@@ -7,12 +7,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import AudioManager from "@/utils/audioManager";
 
-// Using multiple reliable external audio sources for better fallback options
+// More reliable audio sources that are less likely to be blocked by CORS
 const AUDIO_ID = 'ambient-music-player';
 const AUDIO_SOURCES = [
-  'https://cdn.pixabay.com/download/audio/2022/03/09/audio_c8c3ac25b9.mp3?filename=calm-river-ambience-loop-125071.mp3',
-  'https://cdn.pixabay.com/download/audio/2022/01/18/audio_ea75c4af44.mp3?filename=forest-with-small-river-birds-and-nature-field-recording-08-40-14023.mp3',
-  'https://cdn.pixabay.com/download/audio/2021/08/09/audio_ffcf9c1368.mp3?filename=gentle-ocean-waves-breaking-on-beach-relaxation-sounds-ambient-noise-18278.mp3'
+  'https://assets.mixkit.co/music/preview/mixkit-relaxing-in-nature-522.mp3',
+  'https://assets.mixkit.co/music/preview/mixkit-spirit-rising-2.mp3',
+  'https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3'
 ];
 
 const MusicPlayer = () => {
@@ -78,7 +78,14 @@ const MusicPlayer = () => {
       audio.addEventListener('canplaythrough', () => {
         setAudioError(false);
         setIsAudioInitialized(true);
+        audioLoadAttemptedRef.current = false;
         console.log("Audio loaded successfully");
+        
+        if (isPlaying) {
+          AudioManager.playAudio(AUDIO_ID).catch(err => {
+            console.error("Failed to play audio after successful load:", err);
+          });
+        }
       });
       
       audioInitializedRef.current = true;
