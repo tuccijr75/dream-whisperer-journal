@@ -51,7 +51,7 @@ const Index = () => {
 
   const renderContent = () => {
     if (loading) {
-      return <div className="flex justify-center py-12">Loading dreams...</div>;
+      return <div className="flex justify-center py-12 text-white dream-text">Loading dreams...</div>;
     }
 
     if (isAddingDream) {
@@ -65,7 +65,7 @@ const Index = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Your Dream Journal</h2>
+          <h2 className="text-xl font-semibold text-white dream-text">Your Dream Journal</h2>
           <Button 
             onClick={handleAddDream}
             className="bg-dream-gradient hover:opacity-90 transition-opacity"
@@ -80,11 +80,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-dream-soft-blue via-white to-dream-light-purple/30 background-pattern">
+    <div className="min-h-screen background-pattern">
       <div className="container py-8 px-4 max-w-6xl">
         <div className="flex items-center justify-between">
           <Header />
-          <MusicPlayer />
         </div>
         <main className="pt-4 pb-16">
           {renderContent()}

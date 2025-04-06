@@ -13,9 +13,9 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchAutoHide: false,
-      backgroundColor: "#f8f9ff",
+      backgroundColor: "#121d42",
       showSpinner: true,
-      spinnerColor: "#9b87f5",
+      spinnerColor: "#f0e6cf",
       splashFullScreen: true,
       splashImmersive: true
     }
@@ -24,7 +24,7 @@ const config: CapacitorConfig = {
     contentInset: "always"
   },
   android: {
-    backgroundColor: "#f8f9ff"
+    backgroundColor: "#121d42"
   }
 };
 
