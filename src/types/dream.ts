@@ -19,3 +19,22 @@ export interface Dream {
   imageUrl?: string; // URL to AI-generated image
   isPublic?: boolean; // Whether the dream can be shared
 }
+
+export interface DreamTemplate {
+  id: string;
+  name: string;
+  description: string;
+  mood: DreamMood;
+  type: DreamType;
+  category: DreamCategory;
+  tags: string[];
+}
+
+export interface DreamReminder {
+  id: string;
+  time: string; // HH:MM format
+  days: number[]; // 0-6 (Sunday-Saturday)
+  enabled: boolean;
+  sound: 'gentle' | 'nature' | 'crystal' | 'none';
+  volume: number; // 0-100
+}

@@ -1,12 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dream, DreamMood, DreamType, DreamCategory } from "@/types/dream";
+import { Dream, DreamMood, DreamType, DreamCategory, DreamTemplate } from "@/types/dream";
 import { saveDream } from "@/utils/dreamStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Calendar, CalendarIcon, Image, Loader2, Moon, Star } from "lucide-react";
@@ -23,9 +23,10 @@ import TagInput from "./TagInput";
 interface DreamEntryFormProps {
   onDreamSaved: () => void;
   onCancel: () => void;
+  initialTemplate?: DreamTemplate | null;
 }
 
-const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
+const DreamEntryForm = ({ onDreamSaved, onCancel, initialTemplate }: DreamEntryFormProps) => {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -38,6 +39,18 @@ const DreamEntryForm = ({ onDreamSaved, onCancel }: DreamEntryFormProps) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    // If we have an initial template, use it to populate the form
+    if (initialTemplate) {
+      setTitle(`${initialTemplate.name} - ${format(new Date(), 'MMM d, yyyy')}`);
+      setDescription(initialTemplate.description);
+      setMood(initialTemplate.mood);
+      setType(initialTemplate.type);
+      setCategory(initialTemplate.category);
+      setTags(initialTemplate.tags);
+    }
+  }, [initialTemplate]);
 
   const dreamMoods: { value: DreamMood; label: string }[] = [
     { value: "happy", label: "Happy" },

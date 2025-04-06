@@ -1,151 +1,196 @@
 
-import { useState, useMemo } from "react";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Dream, DreamTemplate } from "@/types/dream";
 import { getDreams } from "@/utils/dreamStorage";
-import { Dream } from "@/types/dream";
-import Header from "@/components/Header";
-import DreamCard from "@/components/DreamCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, isEqual, isSameDay, isSameMonth, startOfMonth, endOfMonth, getMonth, getYear } from "date-fns";
+import { format } from "date-fns";
+import DreamEntryForm from "@/components/DreamEntryForm";
+import DreamList from "@/components/DreamList";
+import DreamTemplates from "@/components/DreamTemplates";
+import DreamReminder from "@/components/DreamReminder";
+import { Calendar as CalendarIcon, Template, AlarmClock } from "lucide-react";
 
 const CalendarView = () => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined);
-  const [dreams, setDreams] = useState<Dream[]>(getDreams());
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [dreams, setDreams] = useState<Dream[]>([]);
+  const [isAddingDream, setIsAddingDream] = useState(false);
+  const [activeTab, setActiveTab] = useState("calendar");
+  const [selectedTemplate, setSelectedTemplate] = useState<DreamTemplate | null>(null);
 
-  // Reload dreams when needed
+  useEffect(() => {
+    loadDreams();
+  }, []);
+
   const loadDreams = () => {
-    setDreams(getDreams());
+    const allDreams = getDreams();
+    setDreams(allDreams);
   };
 
-  // Dreams for the selected day
-  const selectedDayDreams = useMemo(() => {
-    if (!selectedDay) return [];
-    return dreams.filter(dream => isSameDay(new Date(dream.date), selectedDay));
-  }, [dreams, selectedDay]);
-
-  // Dates with dreams in the current month
-  const dreamDates = useMemo(() => {
-    const currentMonthDreams = dreams.filter(dream => 
-      isSameMonth(new Date(dream.date), date)
+  const dreamsForDate = (date: Date | undefined) => {
+    if (!date) return [];
+    const dateString = format(date, "yyyy-MM-dd");
+    return dreams.filter(
+      (dream) => format(new Date(dream.date), "yyyy-MM-dd") === dateString
     );
-    
-    return currentMonthDreams.map(dream => new Date(dream.date));
-  }, [dreams, date]);
+  };
 
-  // Handle month navigation
-  const navigateMonth = (direction: 'previous' | 'next') => {
-    const newDate = new Date(date);
-    if (direction === 'previous') {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else {
-      newDate.setMonth(newDate.getMonth() + 1);
-    }
-    setDate(newDate);
-    setSelectedDay(undefined);
+  const getDreamDates = () => {
+    const dates = new Set<string>();
+    dreams.forEach((dream) => {
+      dates.add(format(new Date(dream.date), "yyyy-MM-dd"));
+    });
+    return Array.from(dates).map((date) => new Date(date));
+  };
+
+  const handleAddDream = () => {
+    setIsAddingDream(true);
+    setActiveTab("calendar");
+  };
+
+  const handleTemplateSelected = (template: DreamTemplate) => {
+    setSelectedTemplate(template);
+    setIsAddingDream(true);
+    setActiveTab("calendar");
+  };
+
+  const handleDreamSaved = () => {
+    setIsAddingDream(false);
+    setSelectedTemplate(null);
+    loadDreams();
+  };
+
+  const handleCancel = () => {
+    setIsAddingDream(false);
+    setSelectedTemplate(null);
   };
 
   return (
-    <>
-      <div className="background-pattern"></div>
-      <div className="min-h-screen">
-        <div className="container py-8 px-4 max-w-6xl relative z-10">
-          <div className="flex items-center justify-between">
-            <Header />
-          </div>
-          
-          <main className="pt-4 pb-16">
-            <h1 className="text-2xl font-bold text-white dream-text mb-6">Dream Calendar</h1>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-1">
-                <Card className="border border-dream-light-purple/30 bg-white/50 backdrop-blur-sm">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigateMonth('previous')}
-                        className="border-dream-light-purple/30"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <h2 className="text-lg font-semibold">
-                        {format(date, 'MMMM yyyy')}
-                      </h2>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigateMonth('next')}
-                        className="border-dream-light-purple/30"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDay}
-                      onSelect={setSelectedDay}
-                      month={date}
-                      className="rounded-md"
-                      modifiersStyles={{
-                        selected: {
-                          backgroundColor: '#9b87f5',
-                        }
-                      }}
-                      modifiers={{
-                        hasDream: dreamDates
-                      }}
-                      modifiersClassNames={{
-                        hasDream: "bg-dream-light-purple/30 font-bold"
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="md:col-span-2">
-                <Card className="border border-dream-light-purple/30 bg-white/50 backdrop-blur-sm">
-                  <CardContent className="p-4">
-                    {selectedDay ? (
-                      <div className="space-y-4">
-                        <h2 className="text-lg font-semibold">
-                          Dreams from {format(selectedDay, 'MMMM d, yyyy')}
-                        </h2>
-                        
-                        {selectedDayDreams.length > 0 ? (
-                          <div className="space-y-4">
-                            {selectedDayDreams.map(dream => (
-                              <DreamCard 
-                                key={dream.id} 
-                                dream={dream} 
-                                onUpdate={loadDreams}
-                                fullWidth 
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-muted-foreground py-8 text-center">
-                            No dreams recorded for this day
-                          </p>
-                        )}
-                      </div>
+    <div className="space-y-6">
+      <Tabs 
+        defaultValue="calendar" 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="grid grid-cols-3 mb-6">
+          <TabsTrigger value="calendar" className="flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Calendar</span>
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2">
+            <Template className="h-4 w-4" />
+            <span className="hidden sm:inline">Templates</span>
+          </TabsTrigger>
+          <TabsTrigger value="reminders" className="flex items-center gap-2">
+            <AlarmClock className="h-4 w-4" />
+            <span className="hidden sm:inline">Reminders</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="calendar" className="space-y-6">
+          {isAddingDream ? (
+            <DreamEntryForm 
+              onDreamSaved={handleDreamSaved} 
+              onCancel={handleCancel} 
+              initialTemplate={selectedTemplate}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-white/50 backdrop-blur-sm border border-dream-light-purple/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5 text-dream-purple" />
+                    Dream Calendar
+                  </CardTitle>
+                  <CardDescription>
+                    Select a date to view dreams
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border border-dream-light-purple/20"
+                    highlightedDays={getDreamDates()}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/50 backdrop-blur-sm border border-dream-light-purple/30">
+                <CardHeader>
+                  <CardTitle>
+                    {date
+                      ? `Dreams on ${format(date, "MMMM d, yyyy")}`
+                      : "Select a date"}
+                  </CardTitle>
+                  <CardDescription>
+                    {date ? (
+                      dreamsForDate(date).length > 0
+                        ? `You have ${dreamsForDate(date).length} dream${
+                            dreamsForDate(date).length > 1 ? "s" : ""
+                          } recorded`
+                        : "No dreams recorded for this date"
                     ) : (
-                      <div className="py-8 text-center">
-                        <p className="text-muted-foreground">
-                          Select a day to view dreams
-                        </p>
-                      </div>
+                      "Select a date from the calendar"
                     )}
-                  </CardContent>
-                </Card>
-              </div>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {date && dreamsForDate(date).length > 0 ? (
+                    <DreamList
+                      dreams={dreamsForDate(date)}
+                      onUpdate={loadDreams}
+                      simplified
+                    />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">
+                        {date
+                          ? "No dreams recorded for this date. Add one now!"
+                          : "Select a date to view your dreams"}
+                      </p>
+                      {date && (
+                        <button
+                          className="text-dream-purple hover:underline"
+                          onClick={handleAddDream}
+                        >
+                          Record a dream for this date
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          </main>
-        </div>
-      </div>
-    </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="templates">
+          <DreamTemplates 
+            onSelectTemplate={handleTemplateSelected} 
+            onCreateNewDream={handleAddDream} 
+          />
+        </TabsContent>
+
+        <TabsContent value="reminders">
+          <DreamReminder />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
