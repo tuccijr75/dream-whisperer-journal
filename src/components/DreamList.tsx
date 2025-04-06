@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Dream, DreamMood, DreamType } from "@/types/dream";
 import DreamCard from "./DreamCard";
@@ -12,6 +11,7 @@ import { Search, Calendar as CalendarIcon, Filter, Tag, X } from "lucide-react";
 import { format, parseISO, isSameMonth, isAfter, isBefore, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { DateRange } from "react-day-picker";
 
 interface DreamListProps {
   dreams: Dream[];
@@ -22,7 +22,7 @@ const DreamList = ({ dreams, onUpdate }: DreamListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [moodFilter, setMoodFilter] = useState<DreamMood | "all">("all");
   const [typeFilter, setTypeFilter] = useState<DreamType | "all">("all");
-  const [dateRange, setDateRange] = useState<{from: Date | undefined, to: Date | undefined}>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: undefined,
     to: undefined,
   });

@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface DreamCardProps {
   dream: Dream;
   onUpdate: () => void;
+  fullWidth?: boolean;
 }
 
 const dreamTypeColors: Record<string, string> = {
@@ -34,7 +35,7 @@ const dreamMoodEmojis: Record<string, string> = {
   excited: "😃",
 };
 
-const DreamCard = ({ dream, onUpdate }: DreamCardProps) => {
+const DreamCard = ({ dream, onUpdate, fullWidth }: DreamCardProps) => {
   const { toast } = useToast();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
@@ -61,7 +62,7 @@ const DreamCard = ({ dream, onUpdate }: DreamCardProps) => {
   const hasInsights = dream.interpretation || dream.imageUrl;
   
   return (
-    <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow">
+    <Card className={`border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow ${fullWidth ? 'w-full' : ''}`}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
