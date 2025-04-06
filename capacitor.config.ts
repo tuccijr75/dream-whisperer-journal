@@ -19,6 +19,12 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     }
+  },
+  ios: {
+    contentInset: "always"
+  },
+  android: {
+    backgroundColor: "#f8f9ff"
   }
 };
 
