@@ -55,7 +55,7 @@ const guidedMeditations = [
     title: "Lucid Dream Induction",
     description: "Train your mind to recognize when you're dreaming",
     duration: "15 minutes",
-    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3",
+    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     technique: "MILD (Mnemonic Induction of Lucid Dreams)",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -64,7 +64,7 @@ const guidedMeditations = [
     title: "Dream Recall Enhancement",
     description: "Improve your ability to remember dreams",
     duration: "12 minutes",
-    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-relaxing-in-nature-522.mp3",
+    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     technique: "Memory Association",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -73,7 +73,7 @@ const guidedMeditations = [
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
     duration: "20 minutes",
-    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-spirit-rising-2.mp3",
+    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
     technique: "WBTB",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -82,7 +82,7 @@ const guidedMeditations = [
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
     duration: "10 minutes",
-    audioSrc: "https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3",
+    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg"
   }

@@ -7,12 +7,15 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import AudioManager from "@/utils/audioManager";
 
-// More reliable audio sources that are less likely to be blocked by CORS
+// Free audio sources that should work without CORS issues
 const AUDIO_ID = 'ambient-music-player';
 const AUDIO_SOURCES = [
-  'https://assets.mixkit.co/music/preview/mixkit-relaxing-in-nature-522.mp3',
-  'https://assets.mixkit.co/music/preview/mixkit-spirit-rising-2.mp3',
-  'https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3'
+  '/gentle-wake.mp3', 
+  '/crystal-bells.mp3',
+  '/nature-sounds.mp3',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
 ];
 
 const MusicPlayer = () => {
