@@ -10,8 +10,11 @@ import MeditationVideoCard from "@/components/MeditationVideoCard";
 import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
 import { BrainwaveFrequency } from "@/utils/binauralBeats";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import MeditationPlayer from "@/components/MeditationPlayer";
+import { Brain, Headphones, Moon } from "lucide-react";
 
-const mediationVideos = [
+const meditationVideos = [
   {
     id: "1",
     title: "Lucid Dream Induction",
@@ -46,16 +49,62 @@ const mediationVideos = [
   }
 ];
 
+const guidedMeditations = [
+  {
+    id: "lucid-dream-induction",
+    title: "Lucid Dream Induction",
+    description: "Train your mind to recognize when you're dreaming",
+    duration: "15 minutes",
+    audioSrc: "/ambient-meditation.mp3",
+    technique: "MILD (Mnemonic Induction of Lucid Dreams)",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: "dream-recall",
+    title: "Dream Recall Enhancement",
+    description: "Improve your ability to remember dreams",
+    duration: "12 minutes",
+    audioSrc: "/ambient-meditation.mp3", 
+    technique: "Memory Association",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: "wake-back-to-bed",
+    title: "Wake Back To Bed (WBTB)",
+    description: "A powerful technique combining sleep interruption with intention",
+    duration: "20 minutes",
+    audioSrc: "/ambient-meditation.mp3",
+    technique: "WBTB",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: "reality-checks",
+    title: "Reality Check Training",
+    description: "Build the habit of questioning reality",
+    duration: "10 minutes",
+    audioSrc: "/ambient-meditation.mp3",
+    technique: "Reality Testing",
+    thumbnailUrl: "/placeholder.svg"
+  }
+];
+
 const Meditation = () => {
-  // Change from number to BrainwaveFrequency type
   const [frequency, setFrequency] = useState<BrainwaveFrequency>("theta"); // Default to theta
-  const [volume, setVolume] = useState(50); // Add volume state
-  const [isActive, setIsActive] = useState(true); // Add active state
+  const [volume, setVolume] = useState(50); 
+  const [isActive, setIsActive] = useState(true);
+  const [selectedMeditation, setSelectedMeditation] = useState<string | null>(null);
   
   const handleSelectVideo = (videoId: string) => {
-    // Handle video selection logic here
     console.log(`Selected video: ${videoId}`);
   };
+  
+  const handleSelectMeditation = (meditationId: string) => {
+    setSelectedMeditation(meditationId);
+  };
+  
+  const selectedMeditationData = guidedMeditations.find(
+    meditation => meditation.id === selectedMeditation
+  );
   
   return (
     <div className="container">
@@ -69,9 +118,19 @@ const Meditation = () => {
         <DreamChallenge />
         
         <Tabs defaultValue="binaural">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="binaural">Binaural Beats</TabsTrigger>
-            <TabsTrigger value="guided">Guided Meditations</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="binaural">
+              <Brain className="mr-2 h-4 w-4" />
+              Binaural Beats
+            </TabsTrigger>
+            <TabsTrigger value="guided">
+              <Headphones className="mr-2 h-4 w-4" />
+              Guided Meditations
+            </TabsTrigger>
+            <TabsTrigger value="videos">
+              <Moon className="mr-2 h-4 w-4" />
+              Dream Videos
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="binaural" className="space-y-6">
@@ -144,6 +203,60 @@ const Meditation = () => {
           </TabsContent>
           
           <TabsContent value="guided" className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+              {guidedMeditations.map((meditation) => (
+                <Sheet key={meditation.id}>
+                  <SheetTrigger asChild>
+                    <div>
+                      <MeditationVideoCard 
+                        video={{
+                          id: meditation.id,
+                          title: meditation.title,
+                          description: meditation.description,
+                          duration: meditation.duration,
+                          thumbnailUrl: meditation.thumbnailUrl,
+                          videoUrl: "javascript:void(0)"
+                        }} 
+                        onSelect={() => handleSelectMeditation(meditation.id)}
+                      />
+                    </div>
+                  </SheetTrigger>
+                  <SheetContent className="w-full sm:max-w-md md:max-w-lg">
+                    <SheetHeader>
+                      <SheetTitle>{meditation.title}</SheetTitle>
+                      <SheetDescription>
+                        Technique: {meditation.technique}
+                      </SheetDescription>
+                    </SheetHeader>
+                    
+                    <div className="space-y-4 mt-6">
+                      <p className="text-sm text-muted-foreground">{meditation.description}</p>
+                      
+                      <div className="mt-4">
+                        <MeditationPlayer 
+                          audioSrc={meditation.audioSrc}
+                          title={meditation.title}
+                        />
+                      </div>
+                      
+                      <div className="mt-6 rounded-lg bg-muted p-4">
+                        <h4 className="text-sm font-medium mb-2">How to use this meditation:</h4>
+                        <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
+                          <li>Find a quiet, comfortable place where you won't be disturbed</li>
+                          <li>Lie down or sit in a relaxed position</li>
+                          <li>Use headphones for the best experience</li>
+                          <li>Follow the guided instructions with an open mind</li>
+                          <li>Practice regularly for best results</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="videos" className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
               {mediationVideos.map((video) => (
                 <MeditationVideoCard 

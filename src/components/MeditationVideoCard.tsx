@@ -20,7 +20,7 @@ interface MeditationVideoCardProps {
 
 const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
   return (
-    <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow group">
+    <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer" onClick={onSelect}>
       <div className="relative">
         <img 
           src={video.thumbnailUrl} 
@@ -30,7 +30,10 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button 
             className="bg-dream-gradient hover:opacity-90 transition-opacity"
-            onClick={onSelect}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
           >
             <Play className="mr-2 h-4 w-4" />
             Play
@@ -48,10 +51,13 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
         <Button 
           variant="ghost" 
           className="w-full text-dream-purple hover:text-dream-deep-purple hover:bg-dream-light-purple/20"
-          onClick={onSelect}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
         >
           <Play className="mr-2 h-4 w-4" />
-          Watch Now
+          Start Now
         </Button>
       </CardFooter>
     </Card>
