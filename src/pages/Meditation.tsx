@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MeditationVideoCard } from "@/components/MeditationVideoCard";
+import MeditationVideoCard from "@/components/MeditationVideoCard";
 import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
 
@@ -47,6 +47,11 @@ const mediationVideos = [
 
 const Meditation = () => {
   const [frequency, setFrequency] = useState(7.83); // Default to Schumann resonance
+  
+  const handleSelectVideo = (videoId: string) => {
+    // Handle video selection logic here
+    console.log(`Selected video: ${videoId}`);
+  };
   
   return (
     <div className="container">
@@ -123,7 +128,7 @@ const Meditation = () => {
                   </div>
                   
                   <div className="py-3">
-                    <MusicPlayer audioSrc="/ambient-meditation.mp3" frequency={frequency} />
+                    <MusicPlayer audioSrc="/ambient-meditation.mp3" frequency={frequency.toString()} />
                   </div>
                 </div>
               </CardContent>
@@ -133,7 +138,11 @@ const Meditation = () => {
           <TabsContent value="guided" className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
               {mediationVideos.map((video) => (
-                <MeditationVideoCard key={video.id} video={video} />
+                <MeditationVideoCard 
+                  key={video.id} 
+                  video={video} 
+                  onSelect={() => handleSelectVideo(video.id)} 
+                />
               ))}
             </div>
           </TabsContent>
