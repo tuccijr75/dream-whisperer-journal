@@ -1,11 +1,90 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import Header from "@/components/Header";
+import EmptyState from "@/components/EmptyState";
+import DreamEntryForm from "@/components/DreamEntryForm";
+import DreamList from "@/components/DreamList";
+import { getDreams } from "@/utils/dreamStorage";
+import { Dream } from "@/types/dream";
 
 const Index = () => {
+  const [isAddingDream, setIsAddingDream] = useState(false);
+  const [dreams, setDreams] = useState<Dream[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load dreams from local storage
+    loadDreams();
+  }, []);
+
+  const loadDreams = () => {
+    setLoading(true);
+    try {
+      const loadedDreams = getDreams();
+      // Sort by date (newest first)
+      loadedDreams.sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setDreams(loadedDreams);
+    } catch (error) {
+      console.error("Error loading dreams:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddDream = () => {
+    setIsAddingDream(true);
+  };
+
+  const handleDreamSaved = () => {
+    setIsAddingDream(false);
+    loadDreams();
+  };
+
+  const handleCancel = () => {
+    setIsAddingDream(false);
+  };
+
+  const renderContent = () => {
+    if (loading) {
+      return <div className="flex justify-center py-12">Loading dreams...</div>;
+    }
+
+    if (isAddingDream) {
+      return <DreamEntryForm onDreamSaved={handleDreamSaved} onCancel={handleCancel} />;
+    }
+
+    if (dreams.length === 0) {
+      return <EmptyState onAddDream={handleAddDream} />;
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Your Dream Journal</h2>
+          <Button 
+            onClick={handleAddDream}
+            className="bg-dream-gradient hover:opacity-90 transition-opacity"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New Dream
+          </Button>
+        </div>
+        <DreamList dreams={dreams} onUpdate={loadDreams} />
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-b from-white to-dream-light-purple/20">
+      <div className="container py-8 px-4 max-w-6xl">
+        <Header />
+        <main className="pt-4 pb-16">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );

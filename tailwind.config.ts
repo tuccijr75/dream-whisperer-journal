@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,6 +25,13 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				dream: {
+					purple: '#9b87f5',
+					'deep-purple': '#6E59A5',
+					blue: '#87a9f5',
+					'light-purple': '#D6BCFA',
+					'soft-blue': '#D3E4FD',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -84,11 +92,25 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				'twinkle': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.5' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 6s ease-in-out infinite',
+				'twinkle': 'twinkle 3s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'dream-gradient': 'linear-gradient(135deg, #9b87f5 0%, #87a9f5 100%)',
+				'night-sky': 'radial-gradient(ellipse at top, #1A1F2C 0%, #121420 100%)'
 			}
 		}
 	},
