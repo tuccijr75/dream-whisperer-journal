@@ -32,6 +32,12 @@ class AudioManager {
     // Add error handler to track loading issues
     audio.addEventListener('error', (e) => {
       console.error(`Error loading audio ${id} from ${src}:`, e);
+      // Check if the audio file might be missing
+      this.checkAudioFileExists(src).then(exists => {
+        if (!exists) {
+          console.error(`Audio file ${src} does not exist or is inaccessible`);
+        }
+      });
       // Notify all error listeners
       if (this.errorListeners.has(id)) {
         this.errorListeners.get(id)?.forEach(listener => listener());
@@ -40,6 +46,7 @@ class AudioManager {
     
     // Use absolute path for mobile compatibility
     if (src.startsWith('/')) {
+      // Use window.location.origin to get the base URL including protocol and domain
       audio.src = window.location.origin + src;
     } else {
       audio.src = src;
@@ -63,6 +70,20 @@ class AudioManager {
     }
     
     return audio;
+  }
+
+  /**
+   * Checks if an audio file exists by making a HEAD request
+   */
+  private static async checkAudioFileExists(src: string): Promise<boolean> {
+    try {
+      const fullUrl = src.startsWith('/') ? window.location.origin + src : src;
+      const response = await fetch(fullUrl, { method: 'HEAD' });
+      return response.ok;
+    } catch (error) {
+      console.error('Error checking if audio file exists:', error);
+      return false;
+    }
   }
 
   /**
@@ -93,6 +114,15 @@ class AudioManager {
       if (audio.error) {
         const originalSrc = audio.src;
         audio.src = originalSrc;
+      }
+      
+      // This is needed for iOS
+      if (audio.paused) {
+        // Create a user gesture context
+        document.addEventListener('click', function resumeAudio() {
+          document.removeEventListener('click', resumeAudio);
+          audio.play();
+        }, { once: true });
       }
       
       await audio.play();

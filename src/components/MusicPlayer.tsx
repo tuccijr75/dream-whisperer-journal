@@ -16,25 +16,41 @@ const MusicPlayer = () => {
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const audioInitializedRef = useRef(false);
+  const audioLoadAttemptedRef = useRef(false);
   const isMobile = useIsMobile();
   
   useEffect(() => {
     // Initialize audio with AudioManager
     if (!audioInitializedRef.current) {
-      const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
-        loop: true,
-        volume: volume / 100
-      });
-      
-      // Set up error handling
-      AudioManager.onError(AUDIO_ID, () => {
-        setAudioError(true);
-        toast.error("Could not load meditation audio", {
-          description: "Please check that the audio file exists in the public folder"
+      try {
+        const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+          loop: true,
+          volume: volume / 100
         });
-      });
-      
-      audioInitializedRef.current = true;
+        
+        // Set up error handling
+        AudioManager.onError(AUDIO_ID, () => {
+          console.error("Error loading ambient meditation audio");
+          setAudioError(true);
+          if (!audioLoadAttemptedRef.current) {
+            toast.error("Could not load meditation audio", {
+              description: "Please check that the audio file exists in the public folder"
+            });
+            audioLoadAttemptedRef.current = true;
+          }
+        });
+        
+        // Set up handling for successful load
+        audio.addEventListener('canplaythrough', () => {
+          setAudioError(false);
+          setIsAudioInitialized(true);
+        });
+        
+        audioInitializedRef.current = true;
+      } catch (err) {
+        console.error("Failed to initialize audio:", err);
+        setAudioError(true);
+      }
     }
     
     // Cleanup on unmount
@@ -77,14 +93,20 @@ const MusicPlayer = () => {
       setAudioError(false);
       
       // Initialize audio again
-      const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
-        loop: true,
-        volume: volume / 100
-      });
-      
-      toast.info("Trying to reload ambient music", {
-        duration: 3000
-      });
+      try {
+        const audio = AudioManager.getAudio(AUDIO_ID, AUDIO_SRC, {
+          loop: true,
+          volume: volume / 100
+        });
+        
+        toast.info("Trying to reload ambient music", {
+          duration: 3000
+        });
+      } catch (err) {
+        console.error("Failed to reload audio:", err);
+        setAudioError(true);
+        return;
+      }
     }
     setIsPlaying(!isPlaying);
   };
