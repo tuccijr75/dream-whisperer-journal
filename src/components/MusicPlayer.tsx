@@ -7,16 +7,19 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(false); // Start with false to avoid autoplay issues
+  const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(30);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isMobile = useIsMobile();
-
+  
   useEffect(() => {
+    // Use an absolute path for mobile apps
+    const audioPath = window.location.origin + "/ambient-meditation.mp3";
+    
     // Create audio element
-    audioRef.current = new Audio("/ambient-meditation.mp3");
+    audioRef.current = new Audio(audioPath);
     audioRef.current.loop = true;
     audioRef.current.volume = volume / 100;
     
