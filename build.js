@@ -12,7 +12,7 @@ if (!fs.existsSync(distDir)) {
 // Run the build using vite
 try {
   console.log('Building the project...');
-  execSync('vite build --config vite.config.build.ts', { stdio: 'inherit' });
+  execSync('npx vite build --config vite.config.build.ts', { stdio: 'inherit' });
   console.log('Build completed successfully!');
 } catch (error) {
   console.error('Build failed:', error);
