@@ -21,44 +21,77 @@ const MeditationVideoPlayer = ({ videoUrl, title }: MeditationVideoPlayerProps) 
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
-  // Auto-play the video when the component mounts
+  // Auto-play attempt when component mounts
   useEffect(() => {
-    const playVideo = async () => {
-      if (videoRef.current) {
+    if (videoRef.current) {
+      // Set up event listeners first
+      const video = videoRef.current;
+      
+      const handleCanPlay = () => {
+        setIsVideoLoaded(true);
+        console.log("Video can play now");
+      };
+      
+      video.addEventListener('canplay', handleCanPlay);
+      
+      // Try to load the video
+      video.load();
+      
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+  }, [videoUrl]);
+
+  // Try autoplay after video is loaded
+  useEffect(() => {
+    if (isVideoLoaded && videoRef.current) {
+      const playVideo = async () => {
         try {
-          await videoRef.current.play();
+          await videoRef.current?.play();
           setIsPlaying(true);
+          console.log("Video playing automatically");
         } catch (error) {
           console.error("Failed to auto-play video:", error);
           // Auto-play was prevented, user needs to click play button
         }
-      }
-    };
-    
-    // Small delay to ensure everything is loaded
-    const timer = setTimeout(() => {
-      playVideo();
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [videoUrl]);
+      };
+      
+      // Small delay to ensure everything is ready
+      const timer = setTimeout(() => {
+        playVideo();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isVideoLoaded]);
 
   const togglePlay = () => {
     if (videoRef.current) {
+      console.log("Toggle play clicked, current state:", isPlaying);
+      
       if (isPlaying) {
         videoRef.current.pause();
         setIsPlaying(false);
+        console.log("Video paused");
       } else {
-        videoRef.current.play().then(() => {
-          setIsPlaying(true);
-        }).catch(error => {
-          console.error("Failed to play video:", error);
-          toast.error("Failed to play video", {
-            description: "Please try again or check if the video source is valid."
+        // Create a promise to track play success
+        videoRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            console.log("Video playing");
+          })
+          .catch(error => {
+            console.error("Failed to play video:", error);
+            toast.error("Failed to play video", {
+              description: "Please try again or check if the video source is valid."
+            });
           });
-        });
       }
+    } else {
+      console.error("Video element not found");
     }
   };
 
@@ -86,6 +119,8 @@ const MeditationVideoPlayer = ({ videoUrl, title }: MeditationVideoPlayerProps) 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      setIsVideoLoaded(true);
+      console.log("Video metadata loaded, duration:", videoRef.current.duration);
     }
   };
 
@@ -124,7 +159,8 @@ const MeditationVideoPlayer = ({ videoUrl, title }: MeditationVideoPlayerProps) 
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={() => setIsPlaying(false)}
           poster="/placeholder.svg"
-          preload="auto"
+          preload="metadata"
+          playsInline
         />
         
         <CardContent className="p-4 space-y-3">
