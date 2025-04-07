@@ -10,6 +10,7 @@ import AudioManager from "@/utils/audioManager";
 // Free audio sources that should work without CORS issues
 const AUDIO_ID = 'ambient-music-player';
 const AUDIO_SOURCES = [
+  '/ambient-meditation.mp3', // Added your uploaded file as the first option
   '/gentle-wake.mp3', 
   '/crystal-bells.mp3',
   '/nature-sounds.mp3',
