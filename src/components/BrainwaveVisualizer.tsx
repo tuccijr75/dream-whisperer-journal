@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Brain, VolumeX, Volume2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import binauralBeatGenerator, { BrainwaveFrequency } from "@/utils/binauralBeats";
+import AudioManager from "@/utils/audioManager";
 
 interface BrainwaveVisualizerProps {
   active: boolean;
@@ -23,6 +23,7 @@ const BrainwaveVisualizer = ({
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [binauralVolume, setBinauralVolume] = useState(20);
   const hasInteractedRef = useRef(false);
+  const audioIdRef = useRef("brainwave-audio-player");
   
   const getFrequencySettings = (freq: BrainwaveFrequency) => {
     switch(freq) {
@@ -41,12 +42,39 @@ const BrainwaveVisualizer = ({
     }
   };
   
-  // Handle binaural beats audio
+  const getAudioSource = (freq: BrainwaveFrequency) => {
+    if (freq === "delta") {
+      return "/delta-waves.mp3";
+    }
+    return null;
+  };
+  
   useEffect(() => {
     if (!hasInteractedRef.current) return;
     
     const updateBinauralState = async () => {
-      if (active && soundEnabled) {
+      const audioSource = getAudioSource(frequency);
+      
+      AudioManager.pauseAudio(audioIdRef.current);
+      
+      if (audioSource && soundEnabled && active) {
+        const audio = AudioManager.getAudio(audioIdRef.current, audioSource, {
+          volume: binauralVolume / 100,
+          loop: true
+        });
+        
+        try {
+          await AudioManager.playAudio(audioIdRef.current);
+          binauralBeatGenerator.stop();
+        } catch (err) {
+          console.error("Error playing custom frequency audio:", err);
+          toast.error("Could not play custom audio", {
+            description: "Please try again after interacting with the page",
+            duration: 3000
+          });
+        }
+      } else if (active && soundEnabled) {
+        AudioManager.pauseAudio(audioIdRef.current);
         const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
         if (!success) {
           toast.error("Could not start binaural beats", {
@@ -56,6 +84,7 @@ const BrainwaveVisualizer = ({
         }
       } else {
         binauralBeatGenerator.stop();
+        AudioManager.pauseAudio(audioIdRef.current);
       }
     };
     
@@ -63,17 +92,21 @@ const BrainwaveVisualizer = ({
     
     return () => {
       binauralBeatGenerator.stop();
+      AudioManager.pauseAudio(audioIdRef.current);
     };
   }, [active, soundEnabled, frequency, binauralVolume]);
   
-  // Update binaural volume when it changes
   useEffect(() => {
-    if (soundEnabled && binauralBeatGenerator.isActive()) {
-      binauralBeatGenerator.setVolume(binauralVolume / 100);
+    if (soundEnabled) {
+      const audioSource = getAudioSource(frequency);
+      if (audioSource) {
+        AudioManager.setVolume(audioIdRef.current, binauralVolume / 100);
+      } else if (binauralBeatGenerator.isActive()) {
+        binauralBeatGenerator.setVolume(binauralVolume / 100);
+      }
     }
-  }, [binauralVolume, soundEnabled]);
+  }, [binauralVolume, soundEnabled, frequency]);
   
-  // Canvas animation for wave visualization
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -81,7 +114,6 @@ const BrainwaveVisualizer = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Adjust for high DPI displays
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     
@@ -89,28 +121,22 @@ const BrainwaveVisualizer = ({
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
     
-    // Scale back down using CSS
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
     
-    // Set line style
     const { waveSpeed, waveHeight, color } = getFrequencySettings(frequency);
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
-    // Animation variables
     let phase = 0;
     
-    // Draw function
     const draw = () => {
       if (!ctx || !canvas) return;
       
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
       
       if (!active) {
-        // Draw a flat line when inactive
         ctx.beginPath();
         ctx.strokeStyle = "#94a3b8";
         ctx.moveTo(0, canvas.height / (2 * dpr));
@@ -119,20 +145,15 @@ const BrainwaveVisualizer = ({
         return;
       }
       
-      // Adjust settings based on volume
       const volumeMultiplier = volume / 100;
       const adjustedHeight = waveHeight * volumeMultiplier;
       
-      // Draw wavy line
       ctx.beginPath();
       ctx.strokeStyle = color;
       
-      // Starting point
       const centerY = canvas.height / (2 * dpr);
       
-      // Draw sine wave
       for (let x = 0; x < canvas.width / dpr; x++) {
-        // Use multiple sine waves with different frequencies for more realistic brainwaves
         const y = centerY + 
                  Math.sin(x * 0.02 + phase) * adjustedHeight +
                  Math.sin(x * 0.01 + phase * 0.5) * (adjustedHeight * 0.5) + 
@@ -147,17 +168,13 @@ const BrainwaveVisualizer = ({
       
       ctx.stroke();
       
-      // Update phase for animation
       phase += waveSpeed * 0.02;
       
-      // Continue animation
       animationRef.current = requestAnimationFrame(draw);
     };
     
-    // Start animation
     draw();
     
-    // Cleanup on unmount
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -169,25 +186,48 @@ const BrainwaveVisualizer = ({
     hasInteractedRef.current = true;
     
     if (soundEnabled) {
-      // Simply turn off the sound
       setSoundEnabled(false);
       binauralBeatGenerator.stop();
+      AudioManager.pauseAudio(audioIdRef.current);
     } else {
-      // Try to enable sound
       setSoundEnabled(true);
-      const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
+      
+      const audioSource = getAudioSource(frequency);
+      let success = false;
+      
+      if (audioSource) {
+        const audio = AudioManager.getAudio(audioIdRef.current, audioSource, {
+          volume: binauralVolume / 100,
+          loop: true
+        });
+        
+        try {
+          await AudioManager.playAudio(audioIdRef.current);
+          success = true;
+          toast.success(`${frequency.charAt(0).toUpperCase() + frequency.slice(1)} waves enabled`, {
+            description: "Use headphones for best results",
+            duration: 3000
+          });
+        } catch (err) {
+          console.error("Error playing custom frequency audio:", err);
+        }
+      } else {
+        success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
+        
+        if (success) {
+          toast.success("Binaural beats enabled", {
+            description: "Use headphones for best results",
+            duration: 3000
+          });
+        }
+      }
       
       if (!success) {
-        toast.error("Could not start binaural beats", {
+        toast.error("Could not start audio", {
           description: "Your browser may not support Web Audio API",
           duration: 3000
         });
         setSoundEnabled(false);
-      } else {
-        toast.success("Binaural beats enabled", {
-          description: "Use headphones for best results",
-          duration: 3000
-        });
       }
     }
   };
