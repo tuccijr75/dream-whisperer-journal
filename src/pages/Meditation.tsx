@@ -26,7 +26,7 @@ const meditationVideos = [
     description: "Wake Induced Lucid Dreaming technique for directly entering dream state",
     duration: "15:30",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Original URL
+    videoUrl: "https://www.youtube.com/watch?v=1R44xyuhw4Y" // Updated WILD technique URL
   },
   {
     id: "mild-technique",
