@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
 import { BrainwaveFrequency } from "@/utils/binauralBeats";
 import { Brain, Info, Clock, Moon } from "lucide-react";
+import MeditationVideoCard from "@/components/MeditationVideoCard";
 
 const frequencyDescriptions = {
   delta: "0.5-4 Hz - Deep sleep and healing",
@@ -18,10 +19,42 @@ const frequencyDescriptions = {
   gamma: "30-100 Hz - Higher mental activity, insight"
 };
 
+const meditationVideos = [
+  {
+    id: "wild-technique",
+    title: "WILD Technique",
+    description: "Wake Induced Lucid Dreaming technique for directly entering dream state",
+    duration: "15:30",
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+  },
+  {
+    id: "mild-technique",
+    title: "MILD Technique",
+    description: "Mnemonic Induction of Lucid Dreams - mental conditioning before sleep",
+    duration: "22:45",
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+  },
+  {
+    id: "dream-recall",
+    title: "Dream Recall Meditation",
+    description: "Improve your ability to remember dreams in vivid detail",
+    duration: "18:20",
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+  }
+];
+
 const Meditation = () => {
   const [frequency, setFrequency] = useState<BrainwaveFrequency>("theta");
   const [volume, setVolume] = useState(50); 
   const [isActive, setIsActive] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  
+  const handleSelectVideo = (videoId: string) => {
+    setSelectedVideo(videoId);
+  };
   
   return (
     <div className="container">
@@ -115,7 +148,7 @@ const Meditation = () => {
           </CardContent>
         </Card>
         
-        {/* Meditation Section */}
+        {/* Guided Meditation Section */}
         <Card className="bg-gray-900/60 border-dream-purple/40">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -127,62 +160,13 @@ const Meditation = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card className="bg-gray-900/40 border-gray-700/50 overflow-hidden hover:border-dream-purple/50 transition-colors">
-                <div className="aspect-video bg-gray-800 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Button className="bg-dream-purple/90 hover:bg-dream-purple text-white rounded-full size-12">
-                      <Brain className="h-6 w-6" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-white">WILD Technique</h3>
-                    <Badge variant="outline" className="bg-dream-purple/20 text-dream-purple border-dream-purple/50">
-                      <Clock className="mr-1 h-3 w-3" /> 15:30
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-300">Wake Induced Lucid Dreaming technique for directly entering dream state</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gray-900/40 border-gray-700/50 overflow-hidden hover:border-dream-purple/50 transition-colors">
-                <div className="aspect-video bg-gray-800 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Button className="bg-dream-purple/90 hover:bg-dream-purple text-white rounded-full size-12">
-                      <Moon className="h-6 w-6" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-white">MILD Technique</h3>
-                    <Badge variant="outline" className="bg-dream-purple/20 text-dream-purple border-dream-purple/50">
-                      <Clock className="mr-1 h-3 w-3" /> 22:45
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-300">Mnemonic Induction of Lucid Dreams - mental conditioning before sleep</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gray-900/40 border-gray-700/50 overflow-hidden hover:border-dream-purple/50 transition-colors">
-                <div className="aspect-video bg-gray-800 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Button className="bg-dream-purple/90 hover:bg-dream-purple text-white rounded-full size-12">
-                      <Brain className="h-6 w-6" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-white">Dream Recall Meditation</h3>
-                    <Badge variant="outline" className="bg-dream-purple/20 text-dream-purple border-dream-purple/50">
-                      <Clock className="mr-1 h-3 w-3" /> 18:20
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-300">Improve your ability to remember dreams in vivid detail</p>
-                </CardContent>
-              </Card>
+              {meditationVideos.map(video => (
+                <MeditationVideoCard 
+                  key={video.id}
+                  video={video}
+                  onSelect={() => handleSelectVideo(video.id)}
+                />
+              ))}
             </div>
             
             <Card className="bg-dream-purple/10 border-dream-purple/30 p-4">
