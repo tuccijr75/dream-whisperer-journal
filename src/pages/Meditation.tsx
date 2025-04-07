@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
 import { Info } from "lucide-react";
 import MeditationVideoCard from "@/components/MeditationVideoCard";
+import MeditationVideoDetail from "@/MeditationVideoDetail";
 
 const meditationVideos = [
   {
@@ -13,7 +14,7 @@ const meditationVideos = [
     description: "Wake Induced Lucid Dreaming technique for directly entering dream state",
     duration: "15:30",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=1R44xyuhw4Y" // Updated WILD technique URL
+    videoUrl: "https://www.youtube.com/embed/1R44xyuhw4Y" // Updated embed URL format
   },
   {
     id: "mild-technique",
@@ -21,7 +22,7 @@ const meditationVideos = [
     description: "Mnemonic Induction of Lucid Dreams - mental conditioning before sleep",
     duration: "22:45",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=nlpFhcCfM4c&t=8s" // Updated MILD technique URL
+    videoUrl: "https://www.youtube.com/embed/nlpFhcCfM4c" // Updated embed URL format
   },
   {
     id: "dream-recall",
@@ -29,7 +30,7 @@ const meditationVideos = [
     description: "Improve your ability to remember dreams in vivid detail",
     duration: "18:20",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=qSh-kuRrFqg&t=3s" // Updated Dream Recall video URL
+    videoUrl: "https://www.youtube.com/embed/qSh-kuRrFqg" // Updated embed URL format
   }
 ];
 
@@ -39,6 +40,13 @@ const Meditation = () => {
   const handleSelectVideo = (videoId: string) => {
     setSelectedVideo(videoId);
   };
+  
+  const handleCloseVideo = () => {
+    setSelectedVideo(null);
+  };
+  
+  // Find the selected video object
+  const selectedVideoData = meditationVideos.find(video => video.id === selectedVideo);
   
   return (
     <div className="container">
@@ -83,6 +91,17 @@ const Meditation = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Video Detail Modal */}
+      {selectedVideo && selectedVideoData && (
+        <MeditationVideoDetail 
+          videoId={selectedVideoData.id}
+          videoUrl={selectedVideoData.videoUrl}
+          title={selectedVideoData.title}
+          description={selectedVideoData.description}
+          onClose={handleCloseVideo}
+        />
+      )}
     </div>
   );
 };

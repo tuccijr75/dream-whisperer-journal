@@ -21,7 +21,9 @@ const config: CapacitorConfig = {
     }
   },
   ios: {
-    contentInset: "always"
+    contentInset: "always",
+    scheme: "dream-whisperer",
+    backgroundColor: "#121d42"
   },
   android: {
     backgroundColor: "#121d42"
