@@ -42,7 +42,7 @@ const meditationVideos = [
     description: "Improve your ability to remember dreams in vivid detail",
     duration: "18:20",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Original URL
+    videoUrl: "https://www.youtube.com/watch?v=qSh-kuRrFqg&t=3s" // Updated Dream Recall video URL
   }
 ];
 
