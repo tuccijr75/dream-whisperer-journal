@@ -45,7 +45,7 @@ const BrainwaveVisualizer = ({
   
   const getAudioSource = (freq: BrainwaveFrequency) => {
     if (freq === "delta") {
-      return "/delta-waves.mp3";
+      return "/delta-waves.mp3"; // Using the delta-waves.mp3 file from repository
     }
     return null;
   };
