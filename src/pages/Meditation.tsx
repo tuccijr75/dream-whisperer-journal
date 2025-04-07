@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import DreamChallenge from "@/components/DreamChallenge";
 import { Info } from "lucide-react";
 import MeditationVideoCard from "@/components/MeditationVideoCard";
-import MeditationVideoDetail from "@/MeditationVideoDetail";
+import MeditationVideoDetail from "@/components/MeditationVideoDetail";
 
 const meditationVideos = [
   {
