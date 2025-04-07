@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Brain, VolumeX, Volume2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,34 +56,43 @@ const BrainwaveVisualizer = ({
     const updateBinauralState = async () => {
       const audioSource = getAudioSource(frequency);
       
+      // Stop any existing audio first
       AudioManager.pauseAudio(audioIdRef.current);
+      binauralBeatGenerator.stop();
       
-      if (audioSource && soundEnabled && active) {
-        const audio = AudioManager.getAudio(audioIdRef.current, audioSource, {
-          volume: binauralVolume / 100,
-          loop: true
-        });
-        
-        try {
-          await AudioManager.playAudio(audioIdRef.current);
-          binauralBeatGenerator.stop();
-        } catch (err) {
-          console.error("Error playing custom frequency audio:", err);
-          toast.error("Could not play custom audio", {
-            description: "Please try again after interacting with the page",
-            duration: 3000
+      if (soundEnabled && active) {
+        if (audioSource) {
+          console.log(`Playing custom audio for ${frequency}: ${audioSource}`);
+          
+          const audio = AudioManager.getAudio(audioIdRef.current, audioSource, {
+            volume: binauralVolume / 100,
+            loop: true
           });
-        }
-      } else if (active && soundEnabled) {
-        AudioManager.pauseAudio(audioIdRef.current);
-        const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
-        if (!success) {
-          toast.error("Could not start binaural beats", {
-            description: "Please try again after interacting with the page",
-            duration: 3000
-          });
+          
+          try {
+            await AudioManager.playAudio(audioIdRef.current);
+            console.log(`Successfully started playing ${frequency} audio file`);
+          } catch (err) {
+            console.error("Error playing custom frequency audio:", err);
+            toast.error("Could not play custom audio", {
+              description: "Please try again after interacting with the page",
+              duration: 3000
+            });
+          }
+        } else {
+          console.log(`Starting binaural beat generator for ${frequency}`);
+          const success = await binauralBeatGenerator.start(frequency, binauralVolume / 100);
+          if (!success) {
+            toast.error("Could not start binaural beats", {
+              description: "Please try again after interacting with the page",
+              duration: 3000
+            });
+          } else {
+            console.log(`Successfully started binaural beats for ${frequency}`);
+          }
         }
       } else {
+        // Ensure everything is stopped if not active or sound disabled
         binauralBeatGenerator.stop();
         AudioManager.pauseAudio(audioIdRef.current);
       }
