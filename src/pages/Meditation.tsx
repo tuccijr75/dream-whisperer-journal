@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -26,7 +25,7 @@ const meditationVideos = [
     description: "Wake Induced Lucid Dreaming technique for directly entering dream state",
     duration: "15:30",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+    videoUrl: "https://www.youtube.com/watch?v=xvFZjo5PgG0" // WILD technique video
   },
   {
     id: "mild-technique",
@@ -34,7 +33,7 @@ const meditationVideos = [
     description: "Mnemonic Induction of Lucid Dreams - mental conditioning before sleep",
     duration: "22:45",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+    videoUrl: "https://www.youtube.com/watch?v=B7IJRJO5JaU" // MILD technique video
   },
   {
     id: "dream-recall",
@@ -42,7 +41,7 @@ const meditationVideos = [
     description: "Improve your ability to remember dreams in vivid detail",
     duration: "18:20",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Replace with actual URL
+    videoUrl: "https://www.youtube.com/watch?v=XW7yLPrh0tU" // Dream recall meditation video
   }
 ];
 
