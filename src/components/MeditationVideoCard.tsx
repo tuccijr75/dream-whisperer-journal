@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
@@ -21,10 +21,20 @@ interface MeditationVideoCardProps {
 }
 
 const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleSelect = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    onSelect();
+    setIsOpen(true);
+  };
+
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer" onClick={onSelect}>
+        <Card className="border-dream-light-purple/30 bg-white/50 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow group cursor-pointer" onClick={handleSelect}>
           <div className="relative">
             <img 
               src={video.thumbnailUrl} 
@@ -34,10 +44,7 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
             <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button 
                 className="bg-dream-gradient hover:opacity-90 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect();
-                }}
+                onClick={handleSelect}
               >
                 <Play className="mr-2 h-4 w-4" />
                 Play
@@ -55,10 +62,7 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
             <Button 
               variant="ghost" 
               className="w-full text-dream-purple hover:text-dream-deep-purple hover:bg-dream-light-purple/20"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect();
-              }}
+              onClick={handleSelect}
             >
               <Play className="mr-2 h-4 w-4" />
               Start Now
@@ -66,7 +70,7 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
           </CardFooter>
         </Card>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md md:max-w-lg">
+      <SheetContent side="right" className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl">
         <SheetHeader>
           <SheetTitle>{video.title}</SheetTitle>
           <SheetDescription>{video.description}</SheetDescription>

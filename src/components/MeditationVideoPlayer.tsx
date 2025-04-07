@@ -1,10 +1,11 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from "lucide-react";
 import { formatTime } from "@/utils/formatTime";
+import { toast } from "sonner";
 
 interface MeditationVideoPlayerProps {
   videoUrl: string;
@@ -21,16 +22,43 @@ const MeditationVideoPlayer = ({ videoUrl, title }: MeditationVideoPlayerProps) 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
 
+  // Auto-play the video when the component mounts
+  useEffect(() => {
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error("Failed to auto-play video:", error);
+          // Auto-play was prevented, user needs to click play button
+        }
+      }
+    };
+    
+    // Small delay to ensure everything is loaded
+    const timer = setTimeout(() => {
+      playVideo();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [videoUrl]);
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsPlaying(false);
       } else {
-        videoRef.current.play().catch(error => {
+        videoRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(error => {
           console.error("Failed to play video:", error);
+          toast.error("Failed to play video", {
+            description: "Please try again or check if the video source is valid."
+          });
         });
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -96,6 +124,7 @@ const MeditationVideoPlayer = ({ videoUrl, title }: MeditationVideoPlayerProps) 
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={() => setIsPlaying(false)}
           poster="/placeholder.svg"
+          preload="auto"
         />
         
         <CardContent className="p-4 space-y-3">
