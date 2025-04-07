@@ -67,7 +67,8 @@ const guidedMeditations = [
     duration: "12 minutes",
     audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     technique: "Memory Association",
-    thumbnailUrl: "/placeholder.svg"
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=kfyQJZPRZXc&t=12s"
   },
   {
     id: "wake-back-to-bed",
