@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -21,7 +20,7 @@ const meditationVideos = [
     description: "A guided meditation to help induce lucid dreams",
     duration: "15 minutes",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://example.com/video1"
+    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
   },
   {
     id: "2",
@@ -29,7 +28,7 @@ const meditationVideos = [
     description: "Explore your subconscious and enhance dream recall",
     duration: "20 minutes",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://example.com/video2"
+    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4"
   },
   {
     id: "3",
@@ -37,7 +36,7 @@ const meditationVideos = [
     description: "Transform recurring nightmares into positive experiences",
     duration: "18 minutes",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://example.com/video3"
+    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4"
   },
   {
     id: "4",
@@ -45,7 +44,7 @@ const meditationVideos = [
     description: "Calm your mind and prepare for a peaceful sleep",
     duration: "10 minutes",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://example.com/video4"
+    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-20s.mp4"
   }
 ];
 
@@ -95,7 +94,10 @@ const Meditation = () => {
   const [selectedMeditation, setSelectedMeditation] = useState<string | null>(null);
   
   const handleSelectVideo = (videoId: string) => {
-    console.log(`Selected video: ${videoId}`);
+    const selectedVideo = meditationVideos.find(video => video.id === videoId);
+    if (selectedVideo) {
+      console.log(`Playing video: ${selectedVideo.title}`);
+    }
   };
   
   const handleSelectMeditation = (meditationId: string) => {
