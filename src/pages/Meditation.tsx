@@ -75,7 +75,7 @@ const guidedMeditations = [
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
     duration: "20 minutes",
-    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    audioSrc: "/nature-sounds.mp3", // Changed to use local audio file
     technique: "WBTB",
     thumbnailUrl: "/placeholder.svg"
   },
@@ -84,7 +84,7 @@ const guidedMeditations = [
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
     duration: "10 minutes",
-    audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    audioSrc: "/gentle-wake.mp3", // Changed to use local audio file
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg"
   }
