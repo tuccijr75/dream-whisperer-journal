@@ -18,7 +18,7 @@ const meditationVideos = [
     id: "1",
     title: "Lucid Dream Induction",
     description: "A guided meditation to help induce lucid dreams",
-    duration: "15 minutes",
+    duration: "5 seconds",
     thumbnailUrl: "/placeholder.svg",
     videoUrl: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
   },
@@ -26,7 +26,7 @@ const meditationVideos = [
     id: "2",
     title: "Deep Dream Exploration",
     description: "Explore your subconscious and enhance dream recall",
-    duration: "20 minutes",
+    duration: "10 seconds",
     thumbnailUrl: "/placeholder.svg",
     videoUrl: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4"
   },
@@ -34,7 +34,7 @@ const meditationVideos = [
     id: "3",
     title: "Nightmare Transformation",
     description: "Transform recurring nightmares into positive experiences",
-    duration: "18 minutes",
+    duration: "15 seconds",
     thumbnailUrl: "/placeholder.svg",
     videoUrl: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4"
   },
@@ -42,7 +42,7 @@ const meditationVideos = [
     id: "4",
     title: "Pre-Sleep Relaxation",
     description: "Calm your mind and prepare for a peaceful sleep",
-    duration: "10 minutes",
+    duration: "20 seconds",
     thumbnailUrl: "/placeholder.svg",
     videoUrl: "https://samplelib.com/lib/preview/mp4/sample-20s.mp4"
   }
@@ -53,7 +53,7 @@ const guidedMeditations = [
     id: "lucid-dream-induction",
     title: "Lucid Dream Induction",
     description: "Train your mind to recognize when you're dreaming",
-    duration: "15 minutes",
+    duration: "7:21",
     audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     technique: "MILD (Mnemonic Induction of Lucid Dreams)",
     thumbnailUrl: "/placeholder.svg",
@@ -63,7 +63,7 @@ const guidedMeditations = [
     id: "dream-recall",
     title: "Dream Recall Enhancement",
     description: "Improve your ability to remember dreams",
-    duration: "12 minutes",
+    duration: "6:19",
     audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     technique: "Memory Association",
     thumbnailUrl: "/placeholder.svg",
@@ -73,21 +73,21 @@ const guidedMeditations = [
     id: "wake-back-to-bed",
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
-    duration: "20 minutes",
+    duration: "10:46",
     audioSrc: "/nature-sounds.mp3", // Local audio file
     technique: "WBTB",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=mGkDQ6IO-sA&t=33s" // Added YouTube video URL
+    videoUrl: "https://www.youtube.com/watch?v=mGkDQ6IO-sA&t=33s" 
   },
   {
     id: "reality-checks",
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
-    duration: "10 minutes",
+    duration: "11:13",
     audioSrc: "/gentle-wake.mp3", // Local audio file
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=hcnvLC-zTcs" // Added YouTube video URL
+    videoUrl: "https://www.youtube.com/watch?v=hcnvLC-zTcs"
   }
 ];
 
