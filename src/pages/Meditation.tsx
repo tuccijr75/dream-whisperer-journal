@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -87,7 +86,8 @@ const guidedMeditations = [
     duration: "10 minutes",
     audioSrc: "/gentle-wake.mp3", // Local audio file
     technique: "Reality Testing",
-    thumbnailUrl: "/placeholder.svg"
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=hcnvLC-zTcs" // Added YouTube video URL
   }
 ];
 
