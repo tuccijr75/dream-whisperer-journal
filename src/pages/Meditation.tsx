@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -11,42 +12,7 @@ import DreamChallenge from "@/components/DreamChallenge";
 import { BrainwaveFrequency } from "@/utils/binauralBeats";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import MeditationPlayer from "@/components/MeditationPlayer";
-import { Brain, Headphones, Moon } from "lucide-react";
-
-const meditationVideos = [
-  {
-    id: "1",
-    title: "Lucid Dream Induction",
-    description: "A guided meditation to help induce lucid dreams",
-    duration: "5 seconds",
-    thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4"
-  },
-  {
-    id: "2",
-    title: "Deep Dream Exploration",
-    description: "Explore your subconscious and enhance dream recall",
-    duration: "10 seconds",
-    thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4"
-  },
-  {
-    id: "3",
-    title: "Nightmare Transformation",
-    description: "Transform recurring nightmares into positive experiences",
-    duration: "15 seconds",
-    thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4"
-  },
-  {
-    id: "4",
-    title: "Pre-Sleep Relaxation",
-    description: "Calm your mind and prepare for a peaceful sleep",
-    duration: "20 seconds",
-    thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-20s.mp4"
-  }
-];
+import { Brain, Headphones, Info } from "lucide-react";
 
 const guidedMeditations = [
   {
@@ -91,18 +57,19 @@ const guidedMeditations = [
   }
 ];
 
+const frequencyDescriptions = {
+  delta: "0.5-4 Hz - Deep sleep and healing",
+  theta: "4-8 Hz - REM sleep, meditation, creativity",
+  alpha: "8-13 Hz - Relaxation, pre-sleep, calm alertness",
+  beta: "13-30 Hz - Active thinking, focus, alertness",
+  gamma: "30-100 Hz - Higher mental activity, insight"
+};
+
 const Meditation = () => {
   const [frequency, setFrequency] = useState<BrainwaveFrequency>("theta");
   const [volume, setVolume] = useState(50); 
   const [isActive, setIsActive] = useState(true);
   const [selectedMeditation, setSelectedMeditation] = useState<string | null>(null);
-  
-  const handleSelectVideo = (videoId: string) => {
-    const selectedVideo = meditationVideos.find(video => video.id === videoId);
-    if (selectedVideo) {
-      console.log(`Playing video: ${selectedVideo.title}`);
-    }
-  };
   
   const handleSelectMeditation = (meditationId: string) => {
     setSelectedMeditation(meditationId);
@@ -123,7 +90,7 @@ const Meditation = () => {
         <DreamChallenge />
         
         <Tabs defaultValue="binaural">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="binaural">
               <Brain className="mr-2 h-4 w-4" />
               Binaural Beats
@@ -131,10 +98,6 @@ const Meditation = () => {
             <TabsTrigger value="guided">
               <Headphones className="mr-2 h-4 w-4" />
               Guided Meditations
-            </TabsTrigger>
-            <TabsTrigger value="videos">
-              <Moon className="mr-2 h-4 w-4" />
-              Dream Videos
             </TabsTrigger>
           </TabsList>
           
@@ -164,40 +127,55 @@ const Meditation = () => {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     <Button 
                       variant="outline" 
-                      className={`${frequency === "delta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      className={`${frequency === "delta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700 flex flex-col items-center`}
                       onClick={() => setFrequency("delta")}
                     >
-                      Delta<span className="text-xs block text-gray-400">0.5Hz</span>
+                      <span>Delta</span>
+                      <span className="text-xs block text-gray-400">0.5-4Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === "theta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      className={`${frequency === "theta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700 flex flex-col items-center`}
                       onClick={() => setFrequency("theta")}
                     >
-                      Theta<span className="text-xs block text-gray-400">4Hz</span>
+                      <span>Theta</span>
+                      <span className="text-xs block text-gray-400">4-8Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === "alpha" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      className={`${frequency === "alpha" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700 flex flex-col items-center`}
                       onClick={() => setFrequency("alpha")}
                     >
-                      Alpha<span className="text-xs block text-gray-400">8Hz</span>
+                      <span>Alpha</span>
+                      <span className="text-xs block text-gray-400">8-13Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === "beta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      className={`${frequency === "beta" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700 flex flex-col items-center`}
                       onClick={() => setFrequency("beta")}
                     >
-                      Beta<span className="text-xs block text-gray-400">14Hz</span>
+                      <span>Beta</span>
+                      <span className="text-xs block text-gray-400">13-30Hz</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className={`${frequency === "gamma" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700`}
+                      className={`${frequency === "gamma" ? 'bg-dream-purple/20 border-dream-purple' : ''} border-gray-700 flex flex-col items-center`}
                       onClick={() => setFrequency("gamma")}
                     >
-                      Gamma<span className="text-xs block text-gray-400">30Hz</span>
+                      <span>Gamma</span>
+                      <span className="text-xs block text-gray-400">30Hz+</span>
                     </Button>
                   </div>
+                  
+                  <Card className="bg-gray-900/40 border-gray-700/50 p-4">
+                    <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-dream-purple mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-medium text-white mb-1">{frequency.charAt(0).toUpperCase() + frequency.slice(1)} Waves</h4>
+                        <p className="text-sm text-gray-300">{frequencyDescriptions[frequency]}</p>
+                      </div>
+                    </div>
+                  </Card>
                   
                   <div className="py-3">
                     <MusicPlayer />
@@ -273,18 +251,6 @@ const Meditation = () => {
                     </div>
                   </SheetContent>
                 </Sheet>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="videos" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-              {meditationVideos.map((video) => (
-                <MeditationVideoCard 
-                  key={video.id} 
-                  video={video} 
-                  onSelect={() => handleSelectVideo(video.id)} 
-                />
               ))}
             </div>
           </TabsContent>
