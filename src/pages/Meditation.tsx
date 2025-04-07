@@ -14,7 +14,7 @@ const meditationVideos = [
     description: "Wake Induced Lucid Dreaming technique for directly entering dream state",
     duration: "15:30",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/embed/1R44xyuhw4Y" // Updated embed URL format
+    videoUrl: "https://www.youtube.com/embed/1R44xyuhw4Y"
   },
   {
     id: "mild-technique",
@@ -22,7 +22,7 @@ const meditationVideos = [
     description: "Mnemonic Induction of Lucid Dreams - mental conditioning before sleep",
     duration: "22:45",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/embed/nlpFhcCfM4c" // Updated embed URL format
+    videoUrl: "https://www.youtube.com/embed/nlpFhcCfM4c"
   },
   {
     id: "dream-recall",
@@ -30,7 +30,7 @@ const meditationVideos = [
     description: "Improve your ability to remember dreams in vivid detail",
     duration: "18:20",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/embed/qSh-kuRrFqg" // Updated embed URL format
+    videoUrl: "https://www.youtube.com/embed/qSh-kuRrFqg"
   }
 ];
 
@@ -49,10 +49,10 @@ const Meditation = () => {
   const selectedVideoData = meditationVideos.find(video => video.id === selectedVideo);
   
   return (
-    <div className="container">
+    <div className="container px-4 sm:px-6">
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Dream Meditation</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">Dream Meditation</h1>
           <p className="text-gray-400">Enhance your dream recall and lucid dreaming abilities with these tools</p>
         </div>
         

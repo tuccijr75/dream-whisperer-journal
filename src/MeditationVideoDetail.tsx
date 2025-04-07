@@ -47,6 +47,12 @@ const MeditationVideoDetail = ({
     setIsPlaying(isVideoPlaying);
   };
 
+  // Adds YouTube API parameters for better mobile experience
+  const getEnhancedVideoUrl = () => {
+    // Add playsinline parameter to make video play inline on iOS
+    return `${videoUrl}?autoplay=0&controls=1&modestbranding=1&rel=0&playsinline=1`;
+  };
+
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto">
       <div className="container py-6">
@@ -67,10 +73,10 @@ const MeditationVideoDetail = ({
 
         <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-6">
           <iframe 
-            src={`${videoUrl}?autoplay=0&controls=1&modestbranding=1&rel=0`}
+            src={getEnhancedVideoUrl()}
             className="w-full h-full" 
             title={title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; playsinline"
             allowFullScreen
           ></iframe>
         </div>
