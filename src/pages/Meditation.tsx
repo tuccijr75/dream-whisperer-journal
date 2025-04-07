@@ -34,7 +34,7 @@ const meditationVideos = [
     description: "Mnemonic Induction of Lucid Dreams - mental conditioning before sleep",
     duration: "22:45",
     thumbnailUrl: "/placeholder.svg",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Original URL
+    videoUrl: "https://www.youtube.com/watch?v=nlpFhcCfM4c&t=8s" // Updated MILD technique URL
   },
   {
     id: "dream-recall",
