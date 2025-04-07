@@ -75,16 +75,17 @@ const guidedMeditations = [
     title: "Wake Back To Bed (WBTB)",
     description: "A powerful technique combining sleep interruption with intention",
     duration: "20 minutes",
-    audioSrc: "/nature-sounds.mp3", // Changed to use local audio file
+    audioSrc: "/nature-sounds.mp3", // Local audio file
     technique: "WBTB",
-    thumbnailUrl: "/placeholder.svg"
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://www.youtube.com/watch?v=mGkDQ6IO-sA&t=33s" // Added YouTube video URL
   },
   {
     id: "reality-checks",
     title: "Reality Check Training",
     description: "Build the habit of questioning reality",
     duration: "10 minutes",
-    audioSrc: "/gentle-wake.mp3", // Changed to use local audio file
+    audioSrc: "/gentle-wake.mp3", // Local audio file
     technique: "Reality Testing",
     thumbnailUrl: "/placeholder.svg"
   }
