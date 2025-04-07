@@ -31,6 +31,30 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
     setIsOpen(true);
   };
 
+  // Process YouTube URL to get the embed URL if it's a YouTube link
+  const getVideoUrl = (url: string) => {
+    if (url.includes('youtu.be') || url.includes('youtube.com')) {
+      // Extract YouTube video ID
+      let videoId = '';
+      
+      if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1];
+      } else if (url.includes('youtube.com/watch?v=')) {
+        videoId = url.split('v=')[1];
+        const ampersandPosition = videoId.indexOf('&');
+        if (ampersandPosition !== -1) {
+          videoId = videoId.substring(0, ampersandPosition);
+        }
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
+      }
+    }
+    
+    return url;
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -77,7 +101,20 @@ const MeditationVideoCard = ({ video, onSelect }: MeditationVideoCardProps) => {
         </SheetHeader>
         
         <div className="mt-6">
-          <MeditationVideoPlayer videoUrl={video.videoUrl} title={video.title} />
+          {video.videoUrl.includes('youtube.com') || video.videoUrl.includes('youtu.be') ? (
+            <div className="relative w-full pb-[56.25%] overflow-hidden bg-black rounded-md">
+              <iframe 
+                src={getVideoUrl(video.videoUrl)}
+                className="absolute top-0 left-0 w-full h-full"
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          ) : (
+            <MeditationVideoPlayer videoUrl={video.videoUrl} title={video.title} />
+          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import MusicPlayer from "@/components/MusicPlayer";
 import BrainwaveVisualizer from "@/components/BrainwaveVisualizer";
@@ -56,7 +57,8 @@ const guidedMeditations = [
     duration: "15 minutes",
     audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     technique: "MILD (Mnemonic Induction of Lucid Dreams)",
-    thumbnailUrl: "/placeholder.svg"
+    thumbnailUrl: "/placeholder.svg",
+    videoUrl: "https://youtu.be/nUNQyRr4U2I"
   },
   {
     id: "dream-recall",
@@ -216,7 +218,7 @@ const Meditation = () => {
                           description: meditation.description,
                           duration: meditation.duration,
                           thumbnailUrl: meditation.thumbnailUrl,
-                          videoUrl: "javascript:void(0)"
+                          videoUrl: meditation.videoUrl || "javascript:void(0)"
                         }} 
                         onSelect={() => handleSelectMeditation(meditation.id)}
                       />
@@ -233,12 +235,28 @@ const Meditation = () => {
                     <div className="space-y-4 mt-6">
                       <p className="text-sm text-muted-foreground">{meditation.description}</p>
                       
-                      <div className="mt-4">
-                        <MeditationPlayer 
-                          audioSrc={meditation.audioSrc}
-                          title={meditation.title}
-                        />
-                      </div>
+                      {meditation.videoUrl ? (
+                        <div className="mt-4">
+                          <MeditationVideoCard 
+                            video={{
+                              id: meditation.id,
+                              title: meditation.title,
+                              description: meditation.description,
+                              duration: meditation.duration,
+                              thumbnailUrl: meditation.thumbnailUrl,
+                              videoUrl: meditation.videoUrl
+                            }}
+                            onSelect={() => {}}
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-4">
+                          <MeditationPlayer 
+                            audioSrc={meditation.audioSrc}
+                            title={meditation.title}
+                          />
+                        </div>
+                      )}
                       
                       <div className="mt-6 rounded-lg bg-muted p-4">
                         <h4 className="text-sm font-medium mb-2">How to use this meditation:</h4>
